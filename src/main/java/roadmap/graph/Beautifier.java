@@ -1,9 +1,6 @@
 package roadmap.graph;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Set;
+import java.util.*;
 
 // TODO new HeadSet.Builder(nodes) should only include refs nodes, but not merge base nodes?
 
@@ -68,7 +65,7 @@ final class Beautifier {
                 // Borrow heads from the single child.
                 HeadSet heads = new HeadSet(hsb);
                 for (RefGraph.Node child : children) {
-                    heads.addAll(child.tag());
+                    heads.addAll(child.<HeadSet>tag());
                 }
                 heads.add(hsb, node);
                 node.tag(heads);
@@ -79,7 +76,7 @@ final class Beautifier {
                 ArrayList<RefGraph.Node> l = new ArrayList<>(children);
                 Collections.sort(l, COMPARATOR);
                 for (RefGraph.Node child : l) {
-                    HeadSet childHeads = child.tag();
+                    HeadSet childHeads = child.<HeadSet>tag();
                     if (HeadSet.isMergeBase(heads, childHeads)) {
                         heads.addAll(childHeads);
                     }

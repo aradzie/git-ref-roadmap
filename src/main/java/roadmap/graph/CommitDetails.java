@@ -1,16 +1,14 @@
 package roadmap.graph;
 
-import org.eclipse.jgit.lib.PersonIdent;
-import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.revwalk.*;
 
 /**
- * Information about parsed commit, it includes message,
- * author and committer.
+ * Information about parsed commit, it includes message, author and committer.
  *
- * <p>We do not store these attributes in the commit list because
- * we worry about memory consumption, so we only retrieve commit
- * details on demand by loading bytes from the repository and parsing
- * commit body.</p>
+ * <p>We do not store these attributes in the commit list because we worry
+ * about memory consumption, so we only retrieve commit details on demand by
+ * loading bytes from the owning repository and parsing commit body.</p>
  */
 public class CommitDetails extends Commit {
     private final String message;

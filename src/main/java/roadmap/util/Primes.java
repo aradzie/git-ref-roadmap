@@ -1,9 +1,11 @@
-package roadmap;
+package roadmap.util;
 
 import java.util.*;
 
 /** Generates prime numbers to use in hash tables. */
 public class Primes {
+    private Primes() {}
+
     private static final int[] PRIMES;
 
     static {
@@ -77,7 +79,7 @@ public class Primes {
      *
      * @param n Find all prime numbers up to this number.
      * @return Bit set where only bits set are those for prime numbers,
-     *         starting from 2 (0th bit - 2, 1st bit - 3, etc).
+     * starting from 2 (0th bit - 2, 1st bit - 3, etc).
      */
     private static BitSet primes(int n) {
         BitSet primes = new BitSet(n - 2);

@@ -2,8 +2,8 @@ package roadmap.graph;
 
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.*;
-import roadmap.model.Ref;
-import roadmap.model.*;
+import roadmap.ref.Ref;
+import roadmap.ref.*;
 
 import java.io.*;
 import java.util.*;
@@ -287,8 +287,8 @@ public class RefGraph implements Iterable<RefGraph.Node> {
      *
      * @return Deep copy of this graph without tags.
      */
-    public RefGraph copyWithoutTags() {
-        return new Rewriter.Simplifier(this).simplify();
+    public RefGraph copy(RefFilter filter) {
+        return new Rewriter.Simplifier(this, filter).simplify();
     }
 
     /**
@@ -389,9 +389,9 @@ public class RefGraph implements Iterable<RefGraph.Node> {
                     w.append(" <- ");
                     w.append(diff.getMergeBase().getName(), 0, 8);
                     w.append(" -> ");
-                    w.append(String.valueOf(diff.getCommitsB())).append("/");
                     w.append(diff.getB().getName(), 0, 8);
                     w.append(nb);
+                    w.append("/").append(String.valueOf(diff.getCommitsB()));
                     w.append("\n");
                 }
             }
@@ -400,7 +400,7 @@ public class RefGraph implements Iterable<RefGraph.Node> {
     }
 
     private String names(AnyObjectId id) {
-        HashSet<Ref> refs = new HashSet<>(this.refs.allById(id));
+        HashSet<Ref> refs = new HashSet<>(this.refs.byId(id));
         Iterator<Ref> it = refs.iterator();
         while (it.hasNext()) {
             Ref next = it.next();
@@ -426,7 +426,7 @@ public class RefGraph implements Iterable<RefGraph.Node> {
 
     private boolean names(Appendable s, AnyObjectId id)
             throws IOException {
-        Set<Ref> refs = this.refs.allById(id);
+        Set<Ref> refs = this.refs.byId(id);
         int index = 0;
         s.append("{");
         for (Ref ref : refs) {

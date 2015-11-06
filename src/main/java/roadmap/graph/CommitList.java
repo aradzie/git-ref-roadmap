@@ -4,7 +4,7 @@ import org.eclipse.jgit.errors.*;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.*;
 import org.eclipse.jgit.util.*;
-import roadmap.model.*;
+import roadmap.ref.*;
 
 import java.io.*;
 import java.nio.charset.*;
@@ -16,7 +16,7 @@ import java.util.*;
  * <p>The list strives for compact representation, the commits of this list
  * only store bare minimum attributes, such as commit id, parents and children.
  * If one wants to obtain commit message, author or committer, he/she needs
- * consult the method {@link #loadDetails(ObjectReader, ObjectId) loadDetails}
+ * consult the method {@link #loadDetails(ObjectReader, AnyObjectId) loadDetails}
  * to get these attributes.</p>
  */
 public class CommitList implements Iterable<Commit> {
@@ -274,8 +274,8 @@ public class CommitList implements Iterable<Commit> {
          * @param ref A ref that includes commits reachable from it.
          * @return This instance for fluent interface.
          */
-        public IteratorBuilder since(roadmap.model.Ref... ref) {
-            for (roadmap.model.Ref r : ref) {
+        public IteratorBuilder since(roadmap.ref.Ref... ref) {
+            for (roadmap.ref.Ref r : ref) {
                 validateRef(r);
                 since.add(hsb, r.getId());
             }
@@ -291,8 +291,8 @@ public class CommitList implements Iterable<Commit> {
          * @param refs A collection of refs that include commits reachable from them.
          * @return This instance for fluent interface.
          */
-        public IteratorBuilder since(Collection<roadmap.model.Ref> refs) {
-            for (roadmap.model.Ref r : refs) {
+        public IteratorBuilder since(Collection<roadmap.ref.Ref> refs) {
+            for (roadmap.ref.Ref r : refs) {
                 validateRef(r);
                 since.add(hsb, r.getId());
             }
@@ -308,8 +308,8 @@ public class CommitList implements Iterable<Commit> {
          * @param ref A ref that excludes commits reachable from it.
          * @return This instance for fluent interface.
          */
-        public IteratorBuilder until(roadmap.model.Ref... ref) {
-            for (roadmap.model.Ref r : ref) {
+        public IteratorBuilder until(roadmap.ref.Ref... ref) {
+            for (roadmap.ref.Ref r : ref) {
                 validateRef(r);
                 until.add(hsb, r.getId());
             }
@@ -325,8 +325,8 @@ public class CommitList implements Iterable<Commit> {
          * @param refs A collection of refs that exclude commits reachable from them.
          * @return This instance for fluent interface.
          */
-        public IteratorBuilder until(Collection<roadmap.model.Ref> refs) {
-            for (roadmap.model.Ref r : refs) {
+        public IteratorBuilder until(Collection<roadmap.ref.Ref> refs) {
+            for (roadmap.ref.Ref r : refs) {
                 validateRef(r);
                 until.add(hsb, r.getId());
             }
@@ -338,7 +338,7 @@ public class CommitList implements Iterable<Commit> {
             return this;
         }
 
-        private void validateRef(roadmap.model.Ref r) {
+        private void validateRef(roadmap.ref.Ref r) {
             if (!refs.all().contains(r)) {
                 throw new IllegalStateException("unknown ref");
             }
@@ -368,19 +368,10 @@ public class CommitList implements Iterable<Commit> {
         RefDiffSink(RefSet refs) {
             // All heads from a repository.
             HashSet<Commit> heads = new HashSet<>();
-            for (roadmap.model.Ref ref : refs.branches()) {
+            for (roadmap.ref.Ref ref : refs.all()) {
                 heads.add(map(ref.getId()));
             }
-            // All tags that do not match heads.
-            HashSet<Commit> tags = new HashSet<>();
-            for (roadmap.model.Ref ref : refs.tags()) {
-                Commit commit = map(ref.getId());
-                if (!heads.contains(commit)) {
-                    tags.add(commit);
-                }
-            }
             add(heads);
-            add(tags);
         }
 
         void add(HashSet<Commit> refs) {
@@ -411,8 +402,6 @@ public class CommitList implements Iterable<Commit> {
             return o1.getIndex() - o2.getIndex();
         }
     };
-    /** An instance of empty list for empty set of refs. */
-    public static final CommitList EMPTY = new CommitList(RefSet.EMPTY, new CommitListBuilder());
     private static final int BLOCK_BITS = 10;
     private static final int BLOCK_SIZE = 1 << BLOCK_BITS;
     private static final int BLOCK_MASK = BLOCK_SIZE - 1;
@@ -427,7 +416,7 @@ public class CommitList implements Iterable<Commit> {
             throws IOException {
         refs = r;
 
-        Set<ObjectId> tips = refs.getAllTips();
+        Set<ObjectId> tips = refs.roots();
 
         RevWalk revWalk = new RevWalk(reader);
         revWalk.setRetainBody(false);
@@ -458,7 +447,7 @@ public class CommitList implements Iterable<Commit> {
                 for (int n = 0; n < rc.getChildCount(); n++) {
                     commit.addChild(rc.getChild(n).getCommit());
                 }
-                commit.setRefs(refs.allById(commit));
+                commit.setRefs(refs.byId(commit));
                 b.add(commit);
             }
         }
@@ -481,7 +470,7 @@ public class CommitList implements Iterable<Commit> {
         list = b.getList();
         hashTable = b.getHashTable();
         size = b.getSize();
-        hsb = new HeadSet.Builder(refs.getAllTips());
+        hsb = new HeadSet.Builder(refs.roots());
         HashSet<ObjectId> mergeBases = new HashSet<>();
         RefDiffSink diffs = new RefDiffSink(refs);
         init(mergeBases, diffs);
@@ -529,7 +518,7 @@ public class CommitList implements Iterable<Commit> {
                 heads = new HeadSet(hsb);
             }
 
-            Set<roadmap.model.Ref> refs = commit.getRefs();
+            Set<roadmap.ref.Ref> refs = commit.getRefs();
             if (!refs.isEmpty()) {
                 heads = heads.addRefs(hsb, refs);
                 for (HeadSet tmp : hsc) {
@@ -621,16 +610,12 @@ public class CommitList implements Iterable<Commit> {
         return list[index >> BLOCK_BITS][index & BLOCK_MASK];
     }
 
-    public int indexOf(HasIdKey id) {
-        return indexOf(id.getId());
-    }
-
     /**
      * Get index of a commit by the specified id.
      *
      * @param id A commit id.
      * @return The commit index in this list,
-     *         or -1 if id is not found in this list.
+     * or -1 if id is not found in this list.
      */
     public int indexOf(AnyObjectId id) {
         if (size > 0) {
@@ -647,10 +632,6 @@ public class CommitList implements Iterable<Commit> {
         return -1;
     }
 
-    public Commit map(HasIdKey id) {
-        return map(id.getId());
-    }
-
     /**
      * Maps commit id to commit object.
      *
@@ -665,11 +646,6 @@ public class CommitList implements Iterable<Commit> {
         return get(index);
     }
 
-    public CommitDetails loadDetails(ObjectReader reader, HasIdKey id)
-            throws IOException {
-        return loadDetails(reader, id.getId());
-    }
-
     /**
      * Get commit extended details by loading missing attributes
      * from the database.
@@ -679,23 +655,18 @@ public class CommitList implements Iterable<Commit> {
      * @return Extended commit details.
      * @throws IOException If I/O error occurs.
      */
-    public CommitDetails loadDetails(ObjectReader reader, ObjectId id)
+    public CommitDetails loadDetails(ObjectReader reader, AnyObjectId id)
             throws IOException {
         int index = indexOf(id);
         if (index == -1) {
-            throw new MissingObjectException(id, Constants.OBJ_COMMIT);
+            throw new MissingObjectException(id.copy(), Constants.OBJ_COMMIT);
         }
         ObjectLoader loader = reader.open(id, Constants.OBJ_COMMIT);
-        try {
-            byte[] buffer = loader.getCachedBytes();
-            String message = Parser.getMessage(buffer);
-            PersonIdent author = Parser.parseAuthor(buffer);
-            PersonIdent committer = Parser.parseCommitter(buffer);
-            return new CommitDetails(get(index), message, author, committer);
-        }
-        finally {
-            // TODO reader.release();
-        }
+        byte[] buffer = loader.getCachedBytes();
+        String message = Parser.getMessage(buffer);
+        PersonIdent author = Parser.parseAuthor(buffer);
+        PersonIdent committer = Parser.parseCommitter(buffer);
+        return new CommitDetails(get(index), message, author, committer);
     }
 
     /** @return Graph of refs. */
@@ -713,10 +684,10 @@ public class CommitList implements Iterable<Commit> {
      * @param commit Find all refs that contain this commit.
      * @param refs   user specified set of refs to update.
      */
-    public void getRefs(Commit commit, Set<roadmap.model.Ref> refs) {
+    public void getRefs(Commit commit, Set<roadmap.ref.Ref> refs) {
         HeadSet.Head[] heads = hsb.select(commit.getHeads());
         for (HeadSet.Head head : heads) {
-            refs.addAll(this.refs.allById(head));
+            refs.addAll(this.refs.byId(head));
         }
     }
 
@@ -740,7 +711,7 @@ public class CommitList implements Iterable<Commit> {
          * @param ref A ref.
          * @return Number of all commits having the specified ref.
          */
-        public int getTotal(roadmap.model.Ref ref) {
+        public int getTotal(roadmap.ref.Ref ref) {
             HeadSet.Head head = total.get(ref.getId());
             if (head == null) {
                 throw new IllegalStateException("unknown ref " + ref);
@@ -751,9 +722,9 @@ public class CommitList implements Iterable<Commit> {
         /**
          * @param ref A ref.
          * @return The number of commits matched the predicate and
-         *         having the specified ref.
+         * having the specified ref.
          */
-        public int getMatched(roadmap.model.Ref ref) {
+        public int getMatched(roadmap.ref.Ref ref) {
             HeadSet.Head head = matched.get(ref.getId());
             if (head == null) {
                 throw new IllegalStateException("unknown ref" + ref);
@@ -817,8 +788,6 @@ public class CommitList implements Iterable<Commit> {
             throws IOException {
         w.printf("commits: %d\n", size());
         w.printf("refs: %d\n", refs.all().size());
-        w.printf("heads: %d\n", refs.branches().size());
-        w.printf("tags: %d\n", refs.tags().size());
         refGraph.dump(w);
         w.flush();
     }

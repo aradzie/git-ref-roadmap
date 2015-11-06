@@ -53,7 +53,7 @@ public abstract class CliApp {
     }
 
     static {
-        CmdLineParser.registerHandler(ObjectId.class, ObjectIdOptionHandler.class);
+        OptionHandlerRegistry.getRegistry().registerHandler(ObjectId.class, ObjectIdOptionHandler.class);
     }
 
     protected static void exec(String[] args, CliApp app)

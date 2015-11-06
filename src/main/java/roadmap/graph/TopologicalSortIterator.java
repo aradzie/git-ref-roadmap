@@ -2,10 +2,6 @@ package roadmap.graph;
 
 import java.util.*;
 
-/**
- * Iterates over graph vertex nodes ordering them topologically,
- * so that no parents may come before children.
- */
 class TopologicalSortIterator implements Iterator<RefGraph.Node> {
     private final ArrayDeque<RefGraph.Node> queue = new ArrayDeque<>();
     private RefGraph.Node next;

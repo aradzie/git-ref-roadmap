@@ -1,21 +1,19 @@
 package roadmap.graph;
 
-import roadmap.util.GitUtil;
-import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.lib.ObjectId;
-import org.junit.Test;
+import org.eclipse.jgit.lib.*;
+import org.junit.*;
+import roadmap.util.*;
 
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
 public class HeadSetTest {
     @Test public void testSet()
             throws Exception {
-        ObjectId a = GitUtil.newId();
-        ObjectId b = GitUtil.newId();
-        ObjectId c = GitUtil.newId();
+        ObjectId a = Util.newId();
+        ObjectId b = Util.newId();
+        ObjectId c = Util.newId();
 
         HeadSet.Builder hsb = new HeadSet.Builder(new HashSet<AnyObjectId>(Arrays.asList(a, b, c)));
 

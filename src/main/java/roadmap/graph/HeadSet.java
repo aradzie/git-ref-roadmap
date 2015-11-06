@@ -1,20 +1,17 @@
 package roadmap.graph;
 
-import roadmap.model.Ref;
-import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.*;
+import roadmap.ref.Ref;
 
-import java.util.Arrays;
-import java.util.Set;
+import java.util.*;
 
-/** Set of reachable heads implemented as simple and fast bit set. */
+/** Set of reachable heads implemented as a simple and fast bit set. */
 final class HeadSet {
     /**
      * Commit pointed to by refs.
      *
-     * <p>We are not interested in what refs exactly,
-     * we merely need to know where are merge bases
-     * for this commit.</p>
+     * <p>We are not interested in what refs exactly, we merely need
+     * to know where are merge bases for this commit.</p>
      */
     static class Head extends ObjectId {
         /**

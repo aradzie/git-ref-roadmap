@@ -1,7 +1,6 @@
 package roadmap.graph;
 
-import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.*;
 
 /** Difference in number of commits between two heads. */
 public final class RefDiff implements Comparable<RefDiff> {
@@ -55,7 +54,7 @@ public final class RefDiff implements Comparable<RefDiff> {
 
     /**
      * @return Value indicating whether the merge base commit
-     *         is equal to one of other commits.
+     * is equal to one of other commits.
      */
     public boolean isOneWay() {
         return ObjectId.equals(mergeBase, a)
@@ -78,10 +77,10 @@ public final class RefDiff implements Comparable<RefDiff> {
         return r;
     }
 
-    @Override public boolean equals(Object object) {
-        if (this == object) { return true; }
-        if (!(object instanceof RefDiff)) { return false; }
-        RefDiff that = (RefDiff) object;
+    @Override public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (!(o instanceof RefDiff)) { return false; }
+        RefDiff that = (RefDiff) o;
         if (!ObjectId.equals(mergeBase, that.mergeBase)) { return false; }
         return ObjectId.equals(a, that.a) && ObjectId.equals(b, that.b)
                 || ObjectId.equals(a, that.b) && ObjectId.equals(b, that.a);

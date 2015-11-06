@@ -1,7 +1,6 @@
-package roadmap.model;
+package roadmap.ref;
 
 import org.eclipse.jgit.lib.*;
-import roadmap.*;
 
 import java.util.*;
 
@@ -24,9 +23,9 @@ import static org.eclipse.jgit.lib.Constants.*;
  * <ul>
  * <li><em>refs/heads/master</em> -- identifies branch <em>master</em>
  * in local repository.</li>
- * <li><em>refs/heads/feature1</em> -- identifies branch <em>feature1</em>
+ * <li><em>refs/heads/featureA</em> -- identifies branch <em>featureA</em>
  * in local repository.</li>
- * <li><em>refs/heads/feature2</em> -- identifies branch <em>feature2</em>
+ * <li><em>refs/heads/featureB</em> -- identifies branch <em>featureB</em>
  * in local repository.</li>
  * <li><em>refs/remotes/origin/master</em> -- identifies branch <em>master</em>
  * in remote repository <em>origin</em>.</li>
@@ -34,8 +33,8 @@ import static org.eclipse.jgit.lib.Constants.*;
  * in remote repository <em>sync</em></li>
  * <li><em>refs/remotes/sync/featureB</em> -- identifies branch <em>featureB</em>
  * in remote repository <em>sync</em></li>
- * <li><em>refs/tag/r-0.1</em> -- identifies tag <em>r-0.1</em>.</li>
- * <li><em>refs/tag/r-0.2</em> -- identifies tag <em>r-0.`1</em>.</li>
+ * <li><em>refs/tag/v0.1.0</em> -- identifies tag <em>v0.1.0</em>.</li>
+ * <li><em>refs/tag/v0.2.0</em> -- identifies tag <em>v0.2.0</em>.</li>
  * <li><em>refs/notes/commits</em> -- identifies something non-standard.</li>
  * </ul>
  *
@@ -57,108 +56,68 @@ import static org.eclipse.jgit.lib.Constants.*;
  * <p>Tags are a little bit more interesting. Ref names for tags always start with
  * <em>tags/</em>. Tag refs can refer to commits, but unlike branches, can also refer to
  * trees, blobs and annotated tags. Annotated tags are represented by a special object
- * type in repository. Annotated tags can refer to other annotated tags, and so on.
- * Peeling operation is the process of discovering object referred by a tag by recursively
- * walking tag chain until a non-tag object is found.</p>
+ * type. Annotated tags can refer to other annotated tags, and so on. Peeling operation
+ * is the process of discovering object referred by a tag by recursively walking tag chain
+ * until a non-tag object is found.</p>
  */
-public class Ref implements Comparable<Ref>, HasName, HasIdKey {
-    /**
-     * Symmetric pair of different refs.
-     * The order of refs in the pair does not matter, so that pairs {A,B}
-     * and {B,A} considered equal.
-     */
-    public static final class Pair {
-        private final Ref a, b;
-
-        public Pair(Ref a, Ref b) {
-            this.a = Objects.requireNonNull(a);
-            this.b = Objects.requireNonNull(b);
-        }
-
-        public Ref getA() {
-            return a;
-        }
-
-        public Ref getB() {
-            return b;
-        }
-
-        public boolean matchAny(Ref ref) {
-            return a.equals(ref) || b.equals(ref);
-        }
-
-        @Override public boolean equals(Object o) {
-            if (this == o) { return true; }
-            if (!(o instanceof Pair)) { return false; }
-            Pair that = (Pair) o;
-            return a.equals(that.a) && b.equals(that.b)
-                    || a.equals(that.b) && b.equals(that.a);
-        }
-
-        @Override public int hashCode() {
-            return a.hashCode() ^ b.hashCode();
-        }
-
-        @Override public String toString() {
-            return a + " <-> " + b;
-        }
-    }
-
+public final class Ref implements Comparable<Ref> {
     private final String name;
+    private final String suffix;
     private final ObjectId id;
-    private final boolean forced;
 
     public Ref(String name, ObjectId id) {
         this.name = Objects.requireNonNull(name);
         this.id = Objects.requireNonNull(id).copy();
-        forced = false;
-    }
-
-    public Ref(Ref that, boolean forced) {
-        name = that.getName();
-        id = that.getId();
-        this.forced = forced;
+        if (isLocal(name)) {
+            this.suffix = name.substring(R_HEADS.length());
+        }
+        else if (isRemote(name)) {
+            this.suffix = name.substring(R_REMOTES.length());
+        }
+        else if (isTag(name)) {
+            this.suffix = name.substring(R_TAGS.length());
+        }
+        else {
+            this.suffix = name;
+        }
     }
 
     /** @return Ref name. */
-    @Override public final String getName() {
+    public String getName() {
         return name;
+    }
+
+    /** @return Ref name suffix without the prefix such as <em>refs/heads/</em>. */
+    public String getSuffix() {
+        return suffix;
     }
 
     /**
      * @return Returns referenced object id, if branch, or peeled
-     *         object id, if tag.
+     * object id, if tag.
      */
-    @Override public final ObjectId getId() {
+    public ObjectId getId() {
         return id;
     }
 
-    /**
-     * @return {@code true} if ref was non-fast-forward pushed,
-     *         {@code false} if ref was fast-forward pushed.
-     */
-    public final boolean isForced() {
-        return forced;
-    }
-
-    /** @return Return copy of the current ref with forced flag set. */
-    public Ref asForced() {
-        return new Ref(this, true);
-    }
-
-    /** @return {@code true} if branch, {@code false} otherwise. */
+    /** @return {@code true} if this is a local or remote branch, {@code false} otherwise. */
     public boolean isBranch() {
         return isBranch(name);
     }
 
-    /** @return {@code true} if tag, {@code false} otherwise. */
-    public boolean isTag() {
-        return isTag(name);
+    /** @return {@code true} if this is a local branch, {@code false} otherwise. */
+    public boolean isLocal() {
+        return isLocal(name);
     }
 
-    /** @return {@code true} if annotated tag, {@code false} otherwise. */
-    public boolean isAnnotatedTag() {
-        return false;
+    /** @return {@code true} if this is a remote branch, {@code false} otherwise. */
+    public boolean isRemote() {
+        return isRemote(name);
+    }
+
+    /** @return {@code true} if this is a tag, {@code false} otherwise. */
+    public boolean isTag() {
+        return isTag(name);
     }
 
     @Override public int compareTo(Ref o) {
@@ -167,7 +126,7 @@ public class Ref implements Comparable<Ref>, HasName, HasIdKey {
 
     @Override public boolean equals(Object o) {
         if (this == o) { return true; }
-        if (!Objects.equals(getClass(), o.getClass())) { return false; }
+        if (!(o instanceof Ref)) { return false; }
         Ref that = (Ref) o;
         if (!Objects.equals(getName(), that.getName())) { return false; }
         if (!Objects.equals(getId(), that.getId())) { return false; }
@@ -183,7 +142,15 @@ public class Ref implements Comparable<Ref>, HasName, HasIdKey {
     }
 
     public static boolean isBranch(String name) {
+        return isLocal(name) || isRemote(name);
+    }
+
+    public static boolean isLocal(String name) {
         return name.startsWith(R_HEADS);
+    }
+
+    public static boolean isRemote(String name) {
+        return name.startsWith(R_REMOTES);
     }
 
     public static boolean isTag(String name) {

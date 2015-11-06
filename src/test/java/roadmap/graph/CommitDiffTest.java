@@ -26,7 +26,7 @@ public class CommitDiffTest {
      *           C,c  E,e  G,g  H,h  I,i
      * </pre>
      */
-    class Setup implements RepositoryRule.Setup {
+    class Setup implements RepositorySetup {
         RevCommit a, b, c, d, e, f, g, h, i;
 
         @Override public void play(Repository repository)
@@ -65,11 +65,11 @@ public class CommitDiffTest {
         }
     }
 
-    @Rule public final RepositorySetupRule setupRule = new RepositorySetupRule();
+    @Rule public final RepositorySetupRule setup = new RepositorySetupRule();
 
     @Test public void empty()
             throws Exception {
-        Repository db = setupRule.setupBare(new RepositoryRule.Setup.Empty());
+        Repository db = setup.setupBare(new RepositorySetup.Empty());
         CommitDiff diff = new CommitDiff(new RevWalk(db));
         Sink sink = new Sink();
         diff.diff(ObjectId.zeroId(), ObjectId.zeroId(), sink);
@@ -80,7 +80,7 @@ public class CommitDiffTest {
     @Test public void oneSided()
             throws Exception {
         Setup s = new Setup();
-        Repository db = setupRule.setupBare(s);
+        Repository db = setup.setupBare(s);
         CommitDiff diff = new CommitDiff(new RevWalk(db));
         if (true) {
             Sink sink = new Sink();
@@ -113,7 +113,7 @@ public class CommitDiffTest {
     @Test public void equalSided()
             throws Exception {
         Setup s = new Setup();
-        Repository db = setupRule.setupBare(s);
+        Repository db = setup.setupBare(s);
         CommitDiff diff = new CommitDiff(new RevWalk(db));
         Sink sink = new Sink();
         diff.diff(s.a, s.a, sink);
@@ -124,7 +124,7 @@ public class CommitDiffTest {
     @Test public void dualSided()
             throws Exception {
         Setup s = new Setup();
-        Repository db = setupRule.setupBare(s);
+        Repository db = setup.setupBare(s);
         if (true) {
             CommitDiff diff = new CommitDiff(new RevWalk(db));
             Sink sink = new Sink();
@@ -148,7 +148,7 @@ public class CommitDiffTest {
     @Test public void unequalSided()
             throws Exception {
         Setup s = new Setup();
-        Repository db = setupRule.setupBare(s);
+        Repository db = setup.setupBare(s);
         if (true) {
             CommitDiff diff = new CommitDiff(new RevWalk(db));
             Sink sink = new Sink();
@@ -174,7 +174,7 @@ public class CommitDiffTest {
     @Test public void twisted()
             throws Exception {
         Setup s = new Setup();
-        Repository db = setupRule.setupBare(s);
+        Repository db = setup.setupBare(s);
         if (true) {
             CommitDiff diff = new CommitDiff(new RevWalk(db));
             Sink sink = new Sink();
@@ -202,7 +202,7 @@ public class CommitDiffTest {
     @Test public void moreTwisted()
             throws Exception {
         Setup s = new Setup();
-        Repository db = setupRule.setupBare(s);
+        Repository db = setup.setupBare(s);
         if (true) {
             CommitDiff diff = new CommitDiff(new RevWalk(db));
             Sink sink = new Sink();
@@ -244,7 +244,7 @@ public class CommitDiffTest {
          *      b o
          * </pre>
          */
-        class Setup implements RepositoryRule.Setup {
+        class Setup implements RepositorySetup {
             RevCommit a, b, c, d, e, f;
 
             @Override public void play(Repository repository)
@@ -267,7 +267,7 @@ public class CommitDiffTest {
         }
 
         Setup s = new Setup();
-        Repository db = setupRule.setupBare(s);
+        Repository db = setup.setupBare(s);
         if (true) {
             CommitDiff diff = new CommitDiff(new RevWalk(db));
             Sink sink = new Sink();

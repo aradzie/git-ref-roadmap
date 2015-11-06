@@ -1,25 +1,19 @@
 package roadmap.graph;
 
-import java.util.ArrayDeque;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 
 class BreadthFirstIterator implements Iterator<RefGraph.Node> {
     private final HashSet<RefGraph.Node> seen = new HashSet<>();
     private final ArrayDeque<RefGraph.Node> queue = new ArrayDeque<>();
     private RefGraph.Node next;
 
+    BreadthFirstIterator(RefGraph.Node root) {
+        this(Collections.singleton(root));
+    }
+
     BreadthFirstIterator(Set<? extends RefGraph.Node> roots) {
         seen.addAll(roots);
         queue.addAll(roots);
-        next = findNext();
-    }
-
-    BreadthFirstIterator(RefGraph.Node root) {
-        seen.add(root);
-        queue.add(root);
         next = findNext();
     }
 

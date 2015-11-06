@@ -1,9 +1,10 @@
 package roadmap.graph;
 
-import roadmap.model.*;
+import org.eclipse.jgit.internal.storage.file.*;
 import org.eclipse.jgit.lib.*;
 import org.kohsuke.args4j.*;
-import roadmap.model.Ref;
+import roadmap.ref.Ref;
+import roadmap.ref.*;
 import roadmap.test.*;
 import roadmap.util.*;
 
@@ -32,15 +33,14 @@ public class MergeBaseApp extends CliApp {
 
     @Override protected void run(CmdLineParser parser)
             throws Exception {
-        try (RepositorySetupRule.FileRepository db =
-                     RepositorySetupRule.openWorkTree(dir)) {
+        try (FileRepository db = RepositorySetupRule.openWorkTree(dir)) {
             run(db);
         }
     }
 
     private void run(Repository db)
             throws IOException {
-        RefSet refs = RefSet.builder(db).build();
+        RefSet refs = RefSet.from(db);
         CommitList list = new CommitList(db.newObjectReader(), refs);
         RefGraph graph = list.getRefGraph();
 

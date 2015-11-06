@@ -1,20 +1,32 @@
-package roadmap.graph;
+package roadmap;
 
+import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.storage.file.*;
 import org.kohsuke.args4j.*;
-import roadmap.model.*;
-import roadmap.test.*;
-import roadmap.test.RepositorySetupRule.*;
+import roadmap.graph.*;
+import roadmap.plot.*;
+import roadmap.ref.*;
 import roadmap.util.*;
 
 import javax.swing.*;
 import java.io.*;
 
-public class RefGraphApp extends CliApp {
+public class RoadMap extends CliApp {
     public static void main(String[] args)
             throws Exception {
-        exec(args, new RefGraphApp());
+        exec(args, new RoadMap());
     }
 
+    @Option(
+            name = "--tags",
+            usage = "Include tags"
+    )
+    private boolean tags;
+    @Option(
+            name = "--remotes",
+            usage = "Include remote branches"
+    )
+    private boolean remotes;
     @Argument(
             index = 0,
             required = true,
@@ -25,7 +37,7 @@ public class RefGraphApp extends CliApp {
 
     @Override protected void describe(PrintWriter out)
             throws Exception {
-        out.println("Display ref graph for a repository.");
+        out.println("Display ref roadmap graph for a Git repository.");
     }
 
     @Override protected void run(CmdLineParser parser)
@@ -37,10 +49,12 @@ public class RefGraphApp extends CliApp {
 
     private RefGraph graph()
             throws IOException {
-        try (FileRepository db =
-                     RepositorySetupRule.openWorkTree(dir)) {
+        try (Repository db = new FileRepositoryBuilder()
+                .setWorkTree(dir.getCanonicalFile())
+                .setMustExist(true)
+                .build()) {
             return new CommitList(db.newObjectReader(),
-                    RefSet.builder(db).build()).getRefGraph().copy();
+                    RefSet.from(db)).getRefGraph().copy();
         }
     }
 

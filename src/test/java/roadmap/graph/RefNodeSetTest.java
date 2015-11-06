@@ -10,9 +10,9 @@ import static org.junit.Assert.*;
 public class RefNodeSetTest {
     @Test public void set()
             throws Exception {
-        RefGraph.Node a = new RefGraph.Node(GitUtil.newId());
-        RefGraph.Node b = new RefGraph.Node(GitUtil.newId());
-        RefGraph.Node c = new RefGraph.Node(GitUtil.newId());
+        RefGraph.Node a = new RefGraph.Node(Util.newId());
+        RefGraph.Node b = new RefGraph.Node(Util.newId());
+        RefGraph.Node c = new RefGraph.Node(Util.newId());
 
         RefNodeSet set = new RefNodeSet();
         assertEquals(0, set.size());
@@ -31,7 +31,7 @@ public class RefNodeSetTest {
         assertTrue(set.contains(a));
         assertTrue(set.contains(b));
         assertTrue(set.contains(c));
-        assertFalse(set.contains(new RefGraph.Node(GitUtil.newId())));
+        assertFalse(set.contains(new RefGraph.Node(Util.newId())));
 
         Iterator<RefGraph.Node> it = set.iterator();
         while (it.hasNext()) {
@@ -61,7 +61,7 @@ public class RefNodeSetTest {
         assertTrue(set.contains(a));
         assertTrue(set.contains(b));
         assertTrue(set.contains(c));
-        assertFalse(set.contains(new RefGraph.Node(GitUtil.newId())));
+        assertFalse(set.contains(new RefGraph.Node(Util.newId())));
 
         assertTrue(set.remove(c));
         assertFalse(set.remove(c));
@@ -96,7 +96,7 @@ public class RefNodeSetTest {
 
         Set<RefGraph.Node> ref = new HashSet<>();
         for (int n = 0; n < 1000; n++) {
-            RefGraph.Node node = new RefGraph.Node(GitUtil.newId());
+            RefGraph.Node node = new RefGraph.Node(Util.newId());
             assertTrue(ref.add(node));
             assertFalse(ref.add(node));
             assertTrue(set.add(node));

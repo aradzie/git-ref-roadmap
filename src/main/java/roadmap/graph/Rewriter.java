@@ -1,5 +1,7 @@
 package roadmap.graph;
 
+import roadmap.ref.*;
+
 import java.util.*;
 
 /** Rewrite graph by eliminating uninteresting nodes. */
@@ -116,14 +118,16 @@ abstract class Rewriter {
     static final class Simplifier extends Rewriter {
         private final RefNodeSet heads = new RefNodeSet();
         private final RefNodeSet mergeBases = new RefNodeSet();
+        private final RefFilter filter;
 
-        Simplifier(RefGraph graph) {
+        Simplifier(RefGraph graph, RefFilter filter) {
             // The current implementation is not particularly efficient
             // as it makes two copies of the specified graph.
             // The first copy is needed to clone every node of the graph.
             // The second copy is needed to correctly fill in the internal set
             // of all graph nodes.
             super(graph.copy());
+            this.filter = filter;
         }
 
         RefGraph simplify() {
@@ -148,11 +152,19 @@ abstract class Rewriter {
         /** Find those nodes that have branch refs pointing at them. */
         private void findHeads(RefNodeSet heads) {
             for (RefGraph.Node node : graph) {
-                // Filter out tags.
-                if (!graph.getRefs().branchesById(node).isEmpty()) {
+                if (acceptAny(graph.getRefs().byId(node))) {
                     heads.add(node);
                 }
             }
+        }
+
+        private boolean acceptAny(Set<Ref> refs) {
+            for (Ref ref : refs) {
+                if (filter.accept(ref)) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

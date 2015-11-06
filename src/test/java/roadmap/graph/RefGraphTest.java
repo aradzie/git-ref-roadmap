@@ -4,7 +4,7 @@ import org.eclipse.jgit.junit.*;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.*;
 import org.junit.*;
-import roadmap.model.*;
+import roadmap.ref.*;
 import roadmap.test.*;
 
 import java.io.*;
@@ -14,23 +14,23 @@ import static org.eclipse.jgit.lib.Constants.*;
 import static org.junit.Assert.*;
 
 public class RefGraphTest {
-    @Rule public final RepositorySetupRule setupRule = new RepositorySetupRule();
+    @Rule public final RepositorySetupRule setup = new RepositorySetupRule();
 
     @Test public void emptyGraph()
             throws Exception {
-        class Setup extends RepositoryRule.Setup.Empty {
+        class Setup extends RepositorySetup.Empty {
             //
         }
         Setup s = new Setup();
-        Repository db = setupRule.setupBare(s);
+        Repository db = setup.setupBare(s);
 
-        RefSet refs = RefSet.builder(db).build();
+        RefSet refs = RefSet.from(db);
         RefGraph graph = graph(db.newObjectReader(), refs);
         dump(graph);
         assertTrue(graph.getRoots().isEmpty());
         assertTrue(graph.getRefDiffs().isEmpty());
 
-        graph = graph.copyWithoutTags();
+        graph = graph.copy(RefFilter.BRANCHES);
         assertTrue(graph.getRoots().isEmpty());
         assertTrue(graph.getRefDiffs().isEmpty());
     }
@@ -51,7 +51,7 @@ public class RefGraphTest {
          * o------o
          * </pre>
          */
-        class Setup implements RepositoryRule.Setup {
+        class Setup implements RepositorySetup {
             RevCommit a, b, c, d, e, f;
 
             @Override public void play(Repository repository)
@@ -73,9 +73,9 @@ public class RefGraphTest {
             }
         }
         Setup s = new Setup();
-        Repository db = setupRule.setupBare(s);
+        Repository db = setup.setupBare(s);
 
-        RefSet refs = RefSet.builder(db).build();
+        RefSet refs = RefSet.from(db);
         RefGraph graph = graph(db.newObjectReader(), refs);
         dump(graph);
         assertSetsEquals(set(s.a, s.b, s.d), graph.getRoots());
@@ -110,7 +110,7 @@ public class RefGraphTest {
          *           C,c  E,e  G,g
          * </pre>
          */
-        class Setup implements RepositoryRule.Setup {
+        class Setup implements RepositorySetup {
             RevCommit a, b, c, d, e, f, g;
 
             @Override public void play(Repository repository)
@@ -134,9 +134,9 @@ public class RefGraphTest {
             }
         }
         Setup s = new Setup();
-        Repository db = setupRule.setupBare(s);
+        Repository db = setup.setupBare(s);
 
-        RefSet refs = RefSet.builder(db).build();
+        RefSet refs = RefSet.from(db);
         RefGraph graph = graph(db.newObjectReader(), refs);
         dump(graph);
         assertSetsEquals(set(s.a, s.b), graph.getRoots());
@@ -163,7 +163,7 @@ public class RefGraphTest {
          * o--------o-----o
          * </pre>
          */
-        class Setup implements RepositoryRule.Setup {
+        class Setup implements RepositorySetup {
             RevCommit a, b, c, d, e;
 
             @Override public void play(Repository repository)
@@ -180,9 +180,9 @@ public class RefGraphTest {
             }
         }
         Setup s = new Setup();
-        Repository db = setupRule.setupBare(s);
+        Repository db = setup.setupBare(s);
 
-        RefSet refs = RefSet.builder(db).build();
+        RefSet refs = RefSet.from(db);
         RefGraph graph = graph(db.newObjectReader(), refs);
         dump(graph);
         assertSetsEquals(set(s.a, s.b), graph.getRoots());
@@ -195,7 +195,7 @@ public class RefGraphTest {
         assertEquals(1, graph.getRefDiffs().size());
         assertTrue(graph.getRefDiffs().contains(new RefDiff(s.d, s.a, 2, s.b, 1)));
 
-        graph = graph.copyWithoutTags();
+        graph = graph.copy(RefFilter.BRANCHES);
         assertSetsEquals(set(s.b), graph.getRoots());
         assertEquals(0, graph.node(s.b).getParents().size());
         assertEquals(1, graph.getRefDiffs().size());
@@ -215,7 +215,7 @@ public class RefGraphTest {
          * o--------o-----o
          * </pre>
          */
-        class Setup implements RepositoryRule.Setup {
+        class Setup implements RepositorySetup {
             RevCommit a, b, c, d;
 
             @Override public void play(Repository repository)
@@ -232,9 +232,9 @@ public class RefGraphTest {
             }
         }
         Setup s = new Setup();
-        Repository db = setupRule.setupBare(s);
+        Repository db = setup.setupBare(s);
 
-        RefSet refs = RefSet.builder(db).build();
+        RefSet refs = RefSet.from(db);
         RefGraph graph = graph(db.newObjectReader(), refs);
         dump(graph);
         assertSetsEquals(set(s.a, s.b), graph.getRoots());
@@ -249,7 +249,7 @@ public class RefGraphTest {
         assertTrue(graph.getRefDiffs().contains(new RefDiff(s.c, s.a, 1, s.c, 0)));
         assertTrue(graph.getRefDiffs().contains(new RefDiff(s.c, s.b, 1, s.c, 0)));
 
-        graph = graph.copyWithoutTags();
+        graph = graph.copy(RefFilter.BRANCHES);
         assertSetsEquals(set(s.b), graph.getRoots());
         assertEquals(1, graph.node(s.b).getParents().size());
         assertEquals(0, graph.node(s.c).getParents().size());
@@ -268,7 +268,7 @@ public class RefGraphTest {
          * o--------o-----o
          * </pre>
          */
-        class Setup implements RepositoryRule.Setup {
+        class Setup implements RepositorySetup {
             RevCommit a, b, c, d, e;
 
             @Override public void play(Repository repository)
@@ -286,9 +286,9 @@ public class RefGraphTest {
             }
         }
         Setup s = new Setup();
-        Repository db = setupRule.setupBare(s);
+        Repository db = setup.setupBare(s);
 
-        RefSet refs = RefSet.builder(db).build();
+        RefSet refs = RefSet.from(db);
         RefGraph graph = graph(db.newObjectReader(), refs);
         dump(graph);
         assertSetsEquals(set(s.a, s.b), graph.getRoots());
@@ -306,7 +306,7 @@ public class RefGraphTest {
         assertTrue(graph.getRefDiffs().contains(new RefDiff(s.d, s.c, 1, s.b, 1)));
         assertTrue(graph.getRefDiffs().contains(new RefDiff(s.c, s.c, 0, s.a, 1)));
 
-        graph = graph.copyWithoutTags();
+        graph = graph.copy(RefFilter.BRANCHES);
         assertSetsEquals(set(s.b, s.c), graph.getRoots());
         assertEquals(1, graph.node(s.b).getParents().size());
         assertEquals(1, graph.node(s.c).getParents().size());
@@ -323,7 +323,7 @@ public class RefGraphTest {
          * o
          * </pre>
          */
-        class Setup implements RepositoryRule.Setup {
+        class Setup implements RepositorySetup {
             RevCommit a;
 
             @Override public void play(Repository repository)
@@ -335,9 +335,9 @@ public class RefGraphTest {
             }
         }
         Setup s = new Setup();
-        Repository db = setupRule.setupBare(s);
+        Repository db = setup.setupBare(s);
 
-        RefSet refs = RefSet.builder(db).build();
+        RefSet refs = RefSet.from(db);
         RefGraph graph = graph(db.newObjectReader(), refs);
         dump(graph);
         assertSetsEquals(set(s.a), graph.getRoots());
@@ -354,7 +354,7 @@ public class RefGraphTest {
          * o--------o-------o
          * </pre>
          */
-        class Setup implements RepositoryRule.Setup {
+        class Setup implements RepositorySetup {
             RevCommit a, b, c;
 
             @Override public void play(Repository repository)
@@ -370,9 +370,9 @@ public class RefGraphTest {
             }
         }
         Setup s = new Setup();
-        Repository db = setupRule.setupBare(s);
+        Repository db = setup.setupBare(s);
 
-        RefSet refs = RefSet.builder(db).build();
+        RefSet refs = RefSet.from(db);
         RefGraph graph = graph(db.newObjectReader(), refs);
         dump(graph);
         assertSetsEquals(set(s.a), graph.getRoots());
@@ -404,7 +404,7 @@ public class RefGraphTest {
          * o------+
          * </pre>
          */
-        class Setup implements RepositoryRule.Setup {
+        class Setup implements RepositorySetup {
             RevCommit a, b, c, d;
 
             @Override public void play(Repository repository)
@@ -422,9 +422,9 @@ public class RefGraphTest {
             }
         }
         Setup s = new Setup();
-        Repository db = setupRule.setupBare(s);
+        Repository db = setup.setupBare(s);
 
-        RefSet refs = RefSet.builder(db).build();
+        RefSet refs = RefSet.from(db);
         RefGraph graph = graph(db.newObjectReader(), refs);
         dump(graph);
         assertSetsEquals(set(s.a, s.b, s.c), graph.getRoots());

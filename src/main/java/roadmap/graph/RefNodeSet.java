@@ -1,14 +1,9 @@
 package roadmap.graph;
 
-import roadmap.Primes;
-import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.*;
+import roadmap.util.*;
 
-import java.util.AbstractSet;
-import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 /** Set of ref graph nodes which allows mapping of object ids to nodes. */
 class RefNodeSet extends AbstractSet<RefGraph.Node> implements Iterable<RefGraph.Node> {

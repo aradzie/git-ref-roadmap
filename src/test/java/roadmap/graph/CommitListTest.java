@@ -1,11 +1,11 @@
 package roadmap.graph;
 
-import roadmap.model.*;
 import org.eclipse.jgit.junit.*;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.*;
 import org.junit.*;
-import roadmap.model.Ref;
+import roadmap.ref.Ref;
+import roadmap.ref.*;
 import roadmap.test.*;
 
 import java.util.*;
@@ -14,13 +14,13 @@ import static org.eclipse.jgit.lib.Constants.*;
 import static org.junit.Assert.*;
 
 public class CommitListTest {
-    @Rule public final RepositorySetupRule setupRule = new RepositorySetupRule();
+    @Rule public final RepositorySetupRule setup = new RepositorySetupRule();
 
     @Test public void initialize()
             throws Exception {
         final int commits = 100;
 
-        class Setup implements RepositoryRule.Setup {
+        class Setup implements RepositorySetup {
             @Override public void play(Repository repository)
                     throws Exception {
                 TestRepository<Repository> util = new TestRepository<>(repository);
@@ -40,9 +40,9 @@ public class CommitListTest {
         }
 
         Setup setup = new Setup();
-        Repository db = setupRule.setupBare(setup);
+        Repository db = this.setup.setupBare(setup);
 
-        RefSet refs = RefSet.builder(db).build();
+        RefSet refs = RefSet.from(db);
         CommitList list = new CommitList(db.newObjectReader(), refs);
 
         assertEquals(commits, list.size());
@@ -96,7 +96,7 @@ public class CommitListTest {
      * o------o
      * </pre>
      */
-    public static class Setup implements RepositoryRule.Setup {
+    public static class Setup implements RepositorySetup {
         RevCommit a, b, c, d, e, f;
 
         @Override public void play(Repository repository)
@@ -122,9 +122,9 @@ public class CommitListTest {
     @Test public void iterateSinceUntil()
             throws Exception {
         Setup s = new Setup();
-        Repository db = setupRule.setupBare(s);
+        Repository db = setup.setupBare(s);
 
-        RefSet refs = RefSet.builder(db).build();
+        RefSet refs = RefSet.from(db);
         CommitList list = new CommitList(db.newObjectReader(), refs);
 
         Iterator<Commit> it;
@@ -165,32 +165,32 @@ public class CommitListTest {
     @Test public void countGroupByAll()
             throws Exception {
         Setup setup = new Setup();
-        Repository db = setupRule.setupBare(setup);
+        Repository db = this.setup.setupBare(setup);
 
-        RefSet refs = RefSet.builder(db).build();
+        RefSet refs = RefSet.from(db);
         CommitList list = new CommitList(db.newObjectReader(), refs);
 
         CommitList.GroupByRefMap map = list.countGroupByRef(CommitList.CommitMatcher.ANY);
-        assertEquals(2, map.getTotal(refs.any("refs/heads/A")));
-        assertEquals(2, map.getMatched(refs.any("refs/heads/A")));
-        assertEquals(3, map.getTotal(refs.any("refs/heads/B")));
-        assertEquals(3, map.getMatched(refs.any("refs/heads/B")));
-        assertEquals(2, map.getTotal(refs.any("refs/heads/C")));
-        assertEquals(2, map.getMatched(refs.any("refs/heads/C")));
-        assertEquals(3, map.getTotal(refs.any("refs/heads/D")));
-        assertEquals(3, map.getMatched(refs.any("refs/heads/D")));
-        assertEquals(2, map.getTotal(refs.any("refs/heads/E")));
-        assertEquals(2, map.getMatched(refs.any("refs/heads/E")));
-        assertEquals(1, map.getTotal(refs.any("refs/heads/F")));
-        assertEquals(1, map.getMatched(refs.any("refs/heads/F")));
+        assertEquals(2, map.getTotal(refs.byName("refs/heads/A")));
+        assertEquals(2, map.getMatched(refs.byName("refs/heads/A")));
+        assertEquals(3, map.getTotal(refs.byName("refs/heads/B")));
+        assertEquals(3, map.getMatched(refs.byName("refs/heads/B")));
+        assertEquals(2, map.getTotal(refs.byName("refs/heads/C")));
+        assertEquals(2, map.getMatched(refs.byName("refs/heads/C")));
+        assertEquals(3, map.getTotal(refs.byName("refs/heads/D")));
+        assertEquals(3, map.getMatched(refs.byName("refs/heads/D")));
+        assertEquals(2, map.getTotal(refs.byName("refs/heads/E")));
+        assertEquals(2, map.getMatched(refs.byName("refs/heads/E")));
+        assertEquals(1, map.getTotal(refs.byName("refs/heads/F")));
+        assertEquals(1, map.getMatched(refs.byName("refs/heads/F")));
     }
 
     @Test public void countGroupByFilterWithPredicate()
             throws Exception {
         final Setup setup = new Setup();
-        Repository db = setupRule.setupBare(setup);
+        Repository db = this.setup.setupBare(setup);
 
-        RefSet refs = RefSet.builder(db).build();
+        RefSet refs = RefSet.from(db);
         CommitList list = new CommitList(db.newObjectReader(), refs);
 
         CommitList.GroupByRefMap map = list.countGroupByRef(new CommitList.CommitMatcher() {
@@ -199,17 +199,17 @@ public class CommitListTest {
                         || commit.equals(setup.f);
             }
         });
-        assertEquals(2, map.getTotal(refs.any("refs/heads/A")));
-        assertEquals(2, map.getMatched(refs.any("refs/heads/A")));
-        assertEquals(3, map.getTotal(refs.any("refs/heads/B")));
-        assertEquals(1, map.getMatched(refs.any("refs/heads/B")));
-        assertEquals(2, map.getTotal(refs.any("refs/heads/C")));
-        assertEquals(1, map.getMatched(refs.any("refs/heads/C")));
-        assertEquals(3, map.getTotal(refs.any("refs/heads/D")));
-        assertEquals(1, map.getMatched(refs.any("refs/heads/D")));
-        assertEquals(2, map.getTotal(refs.any("refs/heads/E")));
-        assertEquals(1, map.getMatched(refs.any("refs/heads/E")));
-        assertEquals(1, map.getTotal(refs.any("refs/heads/F")));
-        assertEquals(1, map.getMatched(refs.any("refs/heads/F")));
+        assertEquals(2, map.getTotal(refs.byName("refs/heads/A")));
+        assertEquals(2, map.getMatched(refs.byName("refs/heads/A")));
+        assertEquals(3, map.getTotal(refs.byName("refs/heads/B")));
+        assertEquals(1, map.getMatched(refs.byName("refs/heads/B")));
+        assertEquals(2, map.getTotal(refs.byName("refs/heads/C")));
+        assertEquals(1, map.getMatched(refs.byName("refs/heads/C")));
+        assertEquals(3, map.getTotal(refs.byName("refs/heads/D")));
+        assertEquals(1, map.getMatched(refs.byName("refs/heads/D")));
+        assertEquals(2, map.getTotal(refs.byName("refs/heads/E")));
+        assertEquals(1, map.getMatched(refs.byName("refs/heads/E")));
+        assertEquals(1, map.getTotal(refs.byName("refs/heads/F")));
+        assertEquals(1, map.getMatched(refs.byName("refs/heads/F")));
     }
 }

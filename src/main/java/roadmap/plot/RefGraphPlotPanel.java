@@ -1,7 +1,8 @@
-package roadmap.graph;
+package roadmap.plot;
 
 import org.eclipse.jgit.lib.*;
-import roadmap.model.Ref;
+import roadmap.graph.*;
+import roadmap.ref.Ref;
 
 import javax.swing.*;
 import java.awt.*;
@@ -197,7 +198,7 @@ public class RefGraphPlotPanel extends JPanel {
             int layers = 0;
             ArrayList<Vertex> vertexes = new ArrayList<>();
             // Layout parents behind children.
-            Iterator<Vertex> fwIt = new TopoSortIterator(roots);
+            Iterator<Vertex> fwIt = new TopologicalSortIterator(roots);
             while (fwIt.hasNext()) {
                 Vertex vertex = fwIt.next();
                 int nextLayer = vertex.layer + 1;
@@ -410,7 +411,7 @@ public class RefGraphPlotPanel extends JPanel {
 
         Node(ObjectId id) {
             this.id = id;
-            refs = new ArrayList<>(graph.getRefs().allById(id));
+            refs = new ArrayList<>(graph.getRefs().byId(id));
         }
 
         @Override void drawEdges(Graphics2D g) {
@@ -478,12 +479,10 @@ public class RefGraphPlotPanel extends JPanel {
             }
             else {
                 StringBuilder s = new StringBuilder();
-                s.append(id.getName(), 0, 8);
-                s.append(" (");
                 Iterator<Ref> it = refs.iterator();
                 while (true) {
                     Ref ref = it.next();
-                    s.append(ref.getName());
+                    s.append(ref.getSuffix());
                     if (it.hasNext()) {
                         s.append(", ");
                     }
@@ -491,7 +490,6 @@ public class RefGraphPlotPanel extends JPanel {
                         break;
                     }
                 }
-                s.append(")");
                 return s.toString();
             }
         }
@@ -548,11 +546,11 @@ public class RefGraphPlotPanel extends JPanel {
      * Iterates over graph vertex nodes ordering them topologically,
      * so that no parents may come before children.
      */
-    private static class TopoSortIterator implements Iterator<Vertex> {
+    private static class TopologicalSortIterator implements Iterator<Vertex> {
         private final ArrayDeque<Vertex> queue = new ArrayDeque<>();
         private Vertex next;
 
-        TopoSortIterator(HashSet<? extends Vertex> nodes) {
+        TopologicalSortIterator(HashSet<? extends Vertex> nodes) {
             queue.addAll(nodes);
             Iterator<Vertex> it = new BreadthFirstIterator(nodes);
             while (it.hasNext()) {

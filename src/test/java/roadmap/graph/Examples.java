@@ -3,7 +3,7 @@ package roadmap.graph;
 import org.eclipse.jgit.junit.*;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.*;
-import roadmap.test.RepositoryRule.*;
+import roadmap.test.*;
 
 import static org.eclipse.jgit.lib.Constants.*;
 
@@ -19,7 +19,7 @@ class Examples {
      * o--------o-----o-----o
      * </pre>
      */
-    static class E1 implements Setup {
+    static class E1 implements RepositorySetup {
         RevCommit a, b, c, d, e, f, g;
 
         @Override public void play(Repository repository)
@@ -51,7 +51,7 @@ class Examples {
      *       d   f       g
      * </pre>
      */
-    static class E2 implements Setup {
+    static class E2 implements RepositorySetup {
         RevCommit a, b, c, d, e, f, g;
 
         @Override public void play(Repository repository)
@@ -82,7 +82,7 @@ class Examples {
      * o--------o-----o
      * </pre>
      */
-    static class E3 implements Setup {
+    static class E3 implements RepositorySetup {
         RevCommit a;
         RevCommit b;
         RevCommit c;

@@ -1,20 +1,17 @@
 package roadmap.graph;
 
-import roadmap.model.Ref;
-import org.eclipse.jgit.lib.AnyObjectId;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.revwalk.*;
+import roadmap.ref.Ref;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 
 /**
  * Compact commit representation that only stores bare minimum details,
  * such as commit id, its parent and children.
  */
 public class Commit extends ObjectId {
-    public static final Commit EMPTY = new Commit(ObjectId.zeroId(), ObjectId.zeroId());
     private final ObjectId treeId;
     private int index;
     private Object child;
