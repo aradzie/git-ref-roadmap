@@ -1,0 +1,10 @@
+target
+out
+tmp
+tags
+TAGS
+.idea
+*.iml
+*.ipr
+*.iws
+*.log
