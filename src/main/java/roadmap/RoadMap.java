@@ -69,7 +69,7 @@ public class RoadMap extends CliApp {
 
     private void createAndShowGui(RefGraph graph) {
         JFrame f = new JFrame("Ref Graph");
-        f.add(new JScrollPane(new RefGraphPlotPanel(graph)));
+        f.add(new JScrollPane(new PlotPanel(graph)));
         f.pack();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.setVisible(true);

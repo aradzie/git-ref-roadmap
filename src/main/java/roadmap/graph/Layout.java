@@ -1,16 +1,16 @@
-package roadmap.plot;
+package roadmap.graph;
 
 import org.eclipse.jgit.lib.*;
-import roadmap.graph.*;
-import roadmap.ref.Ref;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.geom.*;
 import java.util.*;
 
-/** Swing component to draw graph of commits. */
-public class RefGraphPlotPanel extends JPanel {
+public class Layout {
+    public interface VertexVisitor {
+        void visit(Bend bend);
+
+        void visit(Node node);
+    }
+
     /** Graph edge crossing reduction facility. */
     private class LayerStack {
         /** Specialized array list to hold vertexes from a single layer. */
@@ -159,15 +159,15 @@ public class RefGraphPlotPanel extends JPanel {
         }
     }
 
-    /** Groups subgraph nodes, provides subgraph metadata. */
-    private class Partition implements Iterable<Vertex> {
-        final HashSet<Node> roots = new HashSet<>();
-        final ArrayList<Vertex> points = new ArrayList<>();
-        final Vertex tail;
-        int layers;
-        int lanes;
+    /** Groups subgraph nodes. */
+    public class Partition implements Iterable<Vertex> {
+        private final HashSet<Node> roots = new HashSet<>();
+        private final ArrayList<Vertex> points = new ArrayList<>();
+        private final Vertex tail;
+        private int layers;
+        private int lanes;
 
-        Partition(Vertex tail) {
+        private Partition(Vertex tail) {
             this.tail = tail;
         }
 
@@ -175,12 +175,38 @@ public class RefGraphPlotPanel extends JPanel {
             return points.iterator();
         }
 
-        void add(Vertex vertex) {
+        public void visit(VertexVisitor visitor) {
+            for (Vertex vertex : points) {
+                vertex.accept(visitor);
+            }
+        }
+
+        public Set<Node> getRoots() {
+            return Collections.unmodifiableSet(roots);
+        }
+
+        public List<Vertex> getPoints() {
+            return Collections.unmodifiableList(points);
+        }
+
+        public Vertex getTail() {
+            return tail;
+        }
+
+        public int getLayers() {
+            return layers;
+        }
+
+        public int getLanes() {
+            return lanes;
+        }
+
+        private void add(Vertex vertex) {
             points.add(vertex);
             vertex.partition = this;
         }
 
-        void layoutNodes() {
+        private void layoutNodes() {
             layers = splitIntoLayers();
             insertBends();
             LayerStack stack = new LayerStack(layers);
@@ -194,7 +220,7 @@ public class RefGraphPlotPanel extends JPanel {
             totalLanes += lanes;
         }
 
-        int splitIntoLayers() {
+        private int splitIntoLayers() {
             int layers = 0;
             ArrayList<Vertex> vertexes = new ArrayList<>();
             // Layout parents behind children.
@@ -242,7 +268,7 @@ public class RefGraphPlotPanel extends JPanel {
             return layers;
         }
 
-        void insertBends() {
+        private void insertBends() {
             class Rewriter {
                 HashSet<Vertex> vertexes = new HashSet<>();
                 Vertex base;
@@ -332,7 +358,7 @@ public class RefGraphPlotPanel extends JPanel {
             }
         }
 
-        void interlink(LayerStack stack) {
+        private void interlink(LayerStack stack) {
             Iterator<Vertex> it = new BreadthFirstIterator(roots);
             while (it.hasNext()) {
                 Vertex vertex = it.next();
@@ -346,152 +372,78 @@ public class RefGraphPlotPanel extends JPanel {
     }
 
     /** Abstract graph vertex. */
-    private class Vertex {
+    public abstract class Vertex {
         /** Incoming vertexes. */
-        final ArrayList<Vertex> incoming = new ArrayList<>();
+        protected final ArrayList<Vertex> incoming = new ArrayList<>(3);
         /** Outgoing vertexes. */
-        final ArrayList<Vertex> outgoing = new ArrayList<>();
+        protected final ArrayList<Vertex> outgoing = new ArrayList<>(3);
         /** The subgraph this node belongs to. */
-        Partition partition;
-        /** Number of incoming edges. */
-        int inDegree;
+        private Partition partition;
         /** X offset. */
-        int layer;
+        protected int layer;
         /** Y offset. */
-        int lane;
+        protected int lane;
+        /** Number of incoming edges. */
+        private int inDegree;
         /** Temporary field. */
-        HashSet<Vertex> set;
+        private HashSet<Vertex> set;
         /** Temporary field. */
-        int weight;
+        private int weight;
 
-        int x() {
-            return xx(totalLayers - layer - 1);
+        public List<Vertex> getIncoming() {
+            return Collections.unmodifiableList(incoming);
         }
 
-        int y() {
-            return yy(partition.lanes - lane - 1);
+        public List<Vertex> getOutgoing() {
+            return Collections.unmodifiableList(outgoing);
         }
 
-        void drawEdges(Graphics2D g) {}
+        public Partition getPartition() {
+            return partition;
+        }
 
-        void drawVertex(Graphics2D g) {}
+        public int getLayer() {
+            return layer;
+        }
+
+        public int getLane() {
+            return lane;
+        }
+
+        public int col() {
+            return totalLayers - layer - 1;
+        }
+
+        public int row() {
+            return partition.lanes - lane - 1;
+        }
+
+        public abstract void accept(VertexVisitor visitor);
     }
 
-    /**
-     * Synthetic vertex generated for long edges
-     * spanning multiple levels.
-     */
-    private class Bend extends Vertex {
-        Bend(int layer) {
+    /** Synthetic vertex generated for long edges spanning multiple levels. */
+    public class Bend extends Vertex {
+        private Bend(int layer) {
             this.layer = layer;
         }
 
-        @Override void drawEdges(Graphics2D g) {
-            int x = x();
-            int y = y();
-            g.setColor(Color.DARK_GRAY);
-            g.setStroke(edgeStroke);
-            for (Vertex vertex : outgoing) {
-                g.drawLine(x, y, vertex.x(), vertex.y());
-            }
-        }
-
-        @Override void drawVertex(Graphics2D g) {
-            int x = x();
-            int y = y();
-            g.setColor(new Color(0x333333));
-            g.fillOval(x - 5, y - 5, 10, 10);
+        @Override public void accept(VertexVisitor visitor) {
+            visitor.visit(this);
         }
     }
 
-    /** Vertex for commit. */
-    private class Node extends Vertex {
-        final ObjectId id;
-        final ArrayList<Ref> refs;
+    /** Vertex for a commit. */
+    public class Node extends Vertex {
+        public final ObjectId id;
+        public final Set<roadmap.ref.Ref> refs;
 
-        Node(ObjectId id) {
+        private Node(ObjectId id) {
             this.id = id;
-            refs = new ArrayList<>(graph.getRefs().byId(id));
+            refs = graph.getRefs().byId(id);
         }
 
-        @Override void drawEdges(Graphics2D g) {
-            int x = x();
-            int y = y();
-            g.setColor(Color.DARK_GRAY);
-            g.setStroke(edgeStroke);
-            for (Vertex vertex : outgoing) {
-                g.drawLine(x, y, vertex.x(), vertex.y());
-            }
-        }
-
-        @Override void drawVertex(Graphics2D g) {
-            int x = x();
-            int y = y();
-            drawDisc(g, x, y);
-            drawLabel(g, x, y);
-        }
-
-        void drawDisc(Graphics2D g, int x, int y) {
-            if (refs.isEmpty()) {
-                g.setColor(C1A);
-                g.fillOval(x - 15, y - 15, 30, 30);
-                g.setColor(C1B);
-                g.drawOval(x - 15, y - 15, 30, 30);
-            }
-            else {
-                int d = 0;
-                for (Ref ref : refs) {
-                    if (ref.isTag()) {
-                        g.setColor(C2A);
-                        g.fillOval(x - 15 + d, y - 15 + d, 30, 30);
-                        g.setColor(C2B);
-                        g.drawOval(x - 15 + d, y - 15 + d, 30, 30);
-                    }
-                    else {
-                        g.setColor(C3A);
-                        g.fillOval(x - 15 + d, y - 15 + d, 30, 30);
-                        g.setColor(C3B);
-                        g.drawOval(x - 15 + d, y - 15 + d, 30, 30);
-                    }
-                    d = d - 3;
-                }
-            }
-        }
-
-        void drawLabel(Graphics2D g, int x, int y) {
-            AffineTransform t = g.getTransform();
-            try {
-                String s = name();
-                Rectangle bounds = g.getFontMetrics().getStringBounds(s, g).getBounds();
-                g.translate(x + 15, y + bounds.height);
-                g.rotate(Math.toRadians(30));
-                g.setColor(Color.BLACK);
-                g.drawString(s, 0, 0);
-            }
-            finally {
-                g.setTransform(t);
-            }
-        }
-
-        String name() {
-            if (refs.isEmpty()) {
-                return id.getName().substring(0, 8);
-            }
-            else {
-                StringBuilder s = new StringBuilder();
-                Iterator<Ref> it = refs.iterator();
-                while (true) {
-                    Ref ref = it.next();
-                    s.append(ref.getSuffix());
-                    if (it.hasNext()) {
-                        s.append(", ");
-                    }
-                    else {
-                        break;
-                    }
-                }
-                return s.toString();
-            }
+        @Override public void accept(VertexVisitor visitor) {
+            visitor.visit(this);
         }
     }
 
@@ -500,9 +452,9 @@ public class RefGraphPlotPanel extends JPanel {
      * just doing breadth-first search.
      */
     private static class BreadthFirstIterator implements Iterator<Vertex> {
-        private final HashSet<Vertex> seen = new HashSet<>();
-        private final ArrayDeque<Vertex> queue = new ArrayDeque<>();
-        private Vertex next;
+        final HashSet<Vertex> seen = new HashSet<>();
+        final ArrayDeque<Vertex> queue = new ArrayDeque<>();
+        Vertex next;
 
         BreadthFirstIterator(HashSet<? extends Vertex> roots) {
             seen.addAll(roots);
@@ -519,13 +471,11 @@ public class RefGraphPlotPanel extends JPanel {
             if (next == null) {
                 throw new NoSuchElementException();
             }
-            else {
-                this.next = findNext();
-            }
+            this.next = findNext();
             return next;
         }
 
-        private Vertex findNext() {
+        Vertex findNext() {
             Vertex node = queue.poll();
             if (node != null) {
                 for (Vertex child : node.outgoing) {
@@ -547,8 +497,8 @@ public class RefGraphPlotPanel extends JPanel {
      * so that no parents may come before children.
      */
     private static class TopologicalSortIterator implements Iterator<Vertex> {
-        private final ArrayDeque<Vertex> queue = new ArrayDeque<>();
-        private Vertex next;
+        final ArrayDeque<Vertex> queue = new ArrayDeque<>();
+        Vertex next;
 
         TopologicalSortIterator(HashSet<? extends Vertex> nodes) {
             queue.addAll(nodes);
@@ -571,13 +521,11 @@ public class RefGraphPlotPanel extends JPanel {
             if (next == null) {
                 throw new NoSuchElementException();
             }
-            else {
-                this.next = findNext();
-            }
+            this.next = findNext();
             return next;
         }
 
-        private Vertex findNext() {
+        Vertex findNext() {
             Vertex node = queue.poll();
             if (node != null) {
                 for (Vertex child : node.outgoing) {
@@ -623,31 +571,12 @@ public class RefGraphPlotPanel extends JPanel {
                     return a.points.size() - b.points.size();
                 }
             };
-    private static final double SCALE = 1;
-    private static final int H_MARGIN = 120;
-    private static final int V_MARGIN = 70;
-    private static final int H_SPACE = 150;
-    private static final int V_SPACE = 80;
-    private static final Color C1A = new Color(0x9ED8BA);
-    private static final Color C1B = new Color(0x71B090);
-    private static final Color C2A = new Color(0xFF9A40);
-    private static final Color C2B = new Color(0xFF7800);
-    private static final Color C3A = new Color(0x409EFF);
-    private static final Color C3B = new Color(0x007DFF);
-    private static final Stroke gridStroke = new BasicStroke(1.0f);
-    private static final Stroke edgeStroke = new BasicStroke(2.0f);
     private final RefGraph graph;
     private final ArrayList<Partition> partitions = new ArrayList<>();
     private int totalLayers, totalLanes;
 
-    public RefGraphPlotPanel(RefGraph graph) {
+    public Layout(RefGraph graph) {
         this.graph = graph;
-        setOpaque(true);
-        setBackground(Color.WHITE);
-        mapNodes();
-    }
-
-    private void mapNodes() {
         HashMap<RefGraph.Node, Node> mapping = new HashMap<>();
         for (RefGraph.Node node : graph) {
             mapping.put(node, new Node(node));
@@ -691,15 +620,15 @@ public class RefGraphPlotPanel extends JPanel {
             }
         }
         // Copy partition onto all root children nodes.
-        ArrayDeque<Vertex> q = new ArrayDeque<>();
+        ArrayDeque<Vertex> queue = new ArrayDeque<>();
         if (root.partition == null) {
             root.partition = partition;
-            q.add(root);
-            while ((node = q.poll()) != null) {
+            queue.add(root);
+            while ((node = queue.poll()) != null) {
                 for (Vertex outgoing : node.outgoing) {
                     if (outgoing.partition == null) {
                         outgoing.partition = partition;
-                        q.push(outgoing);
+                        queue.push(outgoing);
                     }
                 }
             }
@@ -707,66 +636,19 @@ public class RefGraphPlotPanel extends JPanel {
         partition.roots.add((Node) root);
     }
 
-    @Override public Dimension getPreferredSize() {
-        return new Dimension(
-                (int) (SCALE * (H_MARGIN * 2 + (totalLayers - 1) * H_SPACE)),
-                (int) (SCALE * (V_MARGIN * 2 + (totalLanes - 1) * V_SPACE)));
+    public RefGraph getGraph() {
+        return graph;
     }
 
-    @Override public void paintComponent(Graphics g) {
-        Graphics2D g2d = (Graphics2D) g;
-
-        antiAliasGraphics(g2d);
-        g2d.setColor(Color.WHITE);
-        g2d.fillRect(0, 0, getWidth(), getHeight());
-        g2d.scale(SCALE, SCALE);
-
-        g2d.setColor(Color.LIGHT_GRAY);
-        g2d.setStroke(gridStroke);
-
-        // Vertical lines
-        for (int n = 0; n < totalLayers; n++) {
-            g2d.drawLine(xx(n), H_MARGIN, xx(n), yy(totalLanes - 1));
-        }
-
-        // Horizontal lines
-        for (int m = 0; m < totalLanes; m++) {
-            g2d.drawLine(V_MARGIN, yy(m), xx(totalLayers - 1), yy(m));
-        }
-
-        int offset = 0;
-        for (Partition partition : partitions) {
-            AffineTransform t = g2d.getTransform();
-            try {
-                g2d.translate(0, offset * V_SPACE);
-                for (Vertex vertex : partition) {
-                    vertex.drawEdges(g2d);
-                }
-                for (Vertex vertex : partition) {
-                    vertex.drawVertex(g2d);
-                }
-            }
-            finally {
-                g2d.setTransform(t);
-            }
-            offset += partition.lanes;
-        }
+    public List<Partition> getPartitions() {
+        return Collections.unmodifiableList(partitions);
     }
 
-    private static void antiAliasGraphics(Graphics2D g) {
-        // for antialiasing geometric shapes
-        g.addRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON));
-        // for antialiasing text
-        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+    public int getTotalLayers() {
+        return totalLayers;
     }
 
-    private static int xx(int i) {
-        return H_MARGIN + i * H_SPACE;
-    }
-
-    private static int yy(int j) {
-        return V_MARGIN + j * V_SPACE;
+    public int getTotalLanes() {
+        return totalLanes;
     }
 }
