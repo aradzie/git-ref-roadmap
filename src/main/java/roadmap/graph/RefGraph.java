@@ -365,67 +365,26 @@ public class RefGraph implements Iterable<RefGraph.Node> {
             throws IOException {
         w.printf("head diffs: %d\n", refDiffs.size());
         for (RefDiff diff : refDiffs) {
-            if (diff.isOneWay()) {
-                String na = names(diff.getA());
-                String nb = names(diff.getB());
-                if (na != null && nb != null) {
-                    w.append(diff.getA().getName(), 0, 8);
-                    w.append(na);
-                    w.append("/").append(String.valueOf(diff.getCommitsA()));
-                    w.append(" <--> ");
-                    w.append(String.valueOf(diff.getCommitsB())).append("/");
-                    w.append(diff.getB().getName(), 0, 8);
-                    w.append(nb);
-                    w.append("\n");
-                }
-            }
-            else {
-                String na = names(diff.getA());
-                String nb = names(diff.getB());
-                if (na != null && nb != null) {
-                    w.append(diff.getA().getName(), 0, 8);
-                    w.append(na);
-                    w.append("/").append(String.valueOf(diff.getCommitsA()));
-                    w.append(" <- ");
-                    w.append(diff.getMergeBase().getName(), 0, 8);
-                    w.append(" -> ");
-                    w.append(diff.getB().getName(), 0, 8);
-                    w.append(nb);
-                    w.append("/").append(String.valueOf(diff.getCommitsB()));
-                    w.append("\n");
-                }
-            }
+            String na = names(diff.getA());
+            String nb = names(diff.getB());
+            w.append(diff.getA().getName(), 0, 8);
+            w.append(na);
+            w.append("/");
+            w.append(String.valueOf(diff.getCommitsA()));
+            w.append(" <- ");
+            w.append(diff.getMergeBase().getName(), 0, 8);
+            w.append(" -> ");
+            w.append(diff.getB().getName(), 0, 8);
+            w.append(nb);
+            w.append("/");
+            w.append(String.valueOf(diff.getCommitsB()));
+            w.append("\n");
         }
         w.flush();
     }
 
     private String names(AnyObjectId id) {
-        HashSet<Ref> refs = new HashSet<>(this.refs.byId(id));
-        Iterator<Ref> it = refs.iterator();
-        while (it.hasNext()) {
-            Ref next = it.next();
-            if (next.isTag()) {
-                it.remove();
-            }
-        }
-        if (refs.isEmpty()) {
-            return null;
-        }
         StringBuilder s = new StringBuilder();
-        int index = 0;
-        s.append("{");
-        for (Ref ref : refs) {
-            if (index++ > 0) {
-                s.append(", ");
-            }
-            s.append(ref.getName());
-        }
-        s.append("}");
-        return s.toString();
-    }
-
-    private boolean names(Appendable s, AnyObjectId id)
-            throws IOException {
         Set<Ref> refs = this.refs.byId(id);
         int index = 0;
         s.append("{");
@@ -436,6 +395,6 @@ public class RefGraph implements Iterable<RefGraph.Node> {
             s.append(ref.getName());
         }
         s.append("}");
-        return index > 0;
+        return s.toString();
     }
 }
