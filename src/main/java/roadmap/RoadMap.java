@@ -29,7 +29,6 @@ public class RoadMap extends CliApp {
     private boolean remotes;
     @Argument(
             index = 0,
-            required = true,
             metaVar = "DIR",
             usage = "Git repository dir"
     )
@@ -49,12 +48,14 @@ public class RoadMap extends CliApp {
 
     private RefGraph graph()
             throws IOException {
+        if (dir == null) {
+            dir = new File(".").getAbsoluteFile();
+        }
         try (Repository db = new FileRepositoryBuilder()
                 .setWorkTree(dir.getCanonicalFile())
                 .setMustExist(true)
                 .build()) {
-            return new CommitList(db.newObjectReader(),
-                    RefSet.from(db)).getRefGraph().copy();
+            return new CommitList(db.newObjectReader(), RefSet.from(db)).getRefGraph();
         }
     }
 
