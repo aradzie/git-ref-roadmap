@@ -137,7 +137,6 @@ public class RefGraph implements Iterable<RefGraph.Node> {
         }
     }
 
-    public static final RefGraph EMPTY = new RefGraph();
     /** Ref set this graph was built for. */
     private final RefSet refs;
     /** All graph nodes. */
