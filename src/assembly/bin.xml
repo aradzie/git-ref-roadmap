@@ -16,7 +16,7 @@
     </dependencySets>
     <files>
         <file>
-            <source>src/etc/git-roadmap.sh</source>
+            <source>src/bin/git-roadmap</source>
             <outputDirectory>/</outputDirectory>
         </file>
     </files>

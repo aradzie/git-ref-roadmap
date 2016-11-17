@@ -6,7 +6,13 @@
 
     <groupId>com.github.aradzie</groupId>
     <artifactId>git-roadmap</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.1-SNAPSHOT</version>
+
+    <name>git-roadmap</name>
+
+    <description>
+        Git repository visualisation.
+    </description>
 
     <properties>
         <version.jgit>4.5.0.201609210915-r</version.jgit>
@@ -89,11 +95,6 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.10</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.0.2</version>
                 <configuration>
@@ -103,10 +104,32 @@
                             <mainClass>roadmap.RoadMap</mainClass>
                             <addClasspath>true</addClasspath>
                             <classpathLayoutType>custom</classpathLayoutType>
-                            <customClasspathLayout>${artifact.artifactId}.${artifact.extension}</customClasspathLayout>
+                            <customClasspathLayout>
+                                $${artifact.artifactId}.$${artifact.extension}
+                            </customClasspathLayout>
                         </manifest>
                     </archive>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <prependGroupId>false</prependGroupId>
+                            <stripVersion>true</stripVersion>
+                            <excludeScope>test</excludeScope>
+                            <includeScope>runtime</includeScope>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -126,6 +149,45 @@
                         <descriptor>src/assembly/src.xml</descriptor>
                     </descriptors>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.vafer</groupId>
+                <artifactId>jdeb</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jdeb</goal>
+                        </goals>
+                        <configuration>
+                            <dataSet>
+                                <data>
+                                    <type>directory</type>
+                                    <src>${project.build.directory}/lib</src>
+                                    <mapper>
+                                        <type>perm</type>
+                                        <prefix>/usr/lib/git-roadmap</prefix>
+                                    </mapper>
+                                </data>
+                                <data>
+                                    <type>file</type>
+                                    <src>${project.build.directory}/${project.build.finalName}.jar</src>
+                                    <dst>/usr/lib/git-roadmap/git-roadmap.jar</dst>
+                                </data>
+                                <data>
+                                    <type>file</type>
+                                    <src>${basedir}/src/deb/git-roadmap</src>
+                                    <dst>/usr/bin/git-roadmap</dst>
+                                    <mapper>
+                                        <type>perm</type>
+                                        <filemode>755</filemode>
+                                    </mapper>
+                                </data>
+                            </dataSet>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

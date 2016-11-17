@@ -1,0 +1,10 @@
+Package: [[name]]
+Version: [[version]]
+Section: misc
+Priority: optional
+Architecture: all
+Maintainer: Aliaksandr Radzivanovich <aradzivanovich@gmail.com>
+Description: [[description]]
+Distribution: development
+Depends: git (>= 1:2.7.0), default-jre | java7-runtime | java8-runtime
+Enhances: git

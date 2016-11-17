@@ -3,7 +3,7 @@
 source "$(git --exec-path)/git-sh-setup"
 
 function _roadmap() {
-    java -jar ./lib/git-ref-roadmap.jar
+    java -jar /usr/lib/git-roadmap/git-roadmap.jar
 }
 
 _roadmap
