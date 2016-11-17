@@ -1,16 +1,20 @@
 package roadmap.graph;
 
-import org.eclipse.jgit.lib.*;
-import roadmap.util.*;
+import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.ObjectId;
 
-import java.util.*;
+import java.util.AbstractSet;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /** Set of ref graph nodes which allows mapping of object ids to nodes. */
 class RefNodeSet
         extends AbstractSet<RefGraph.Node>
         implements Iterable<RefGraph.Node> {
     private static final RefGraph.Node DELETED = new RefGraph.Node(ObjectId.zeroId());
-    private static final int INITIAL_CAPACITY = Primes.nextPrime(32);
+    private static final int INITIAL_CAPACITY = 32;
     private RefGraph.Node[] data;
     private int size;
 
@@ -62,7 +66,7 @@ class RefNodeSet
         data[p] = node;
         size++;
         if (size > data.length * 0.7) {
-            rehash(Primes.nextPrime(size * 2));
+            rehash(size * 2);
         }
         return true;
     }
