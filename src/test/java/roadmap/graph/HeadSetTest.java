@@ -1,12 +1,15 @@
 package roadmap.graph;
 
-import org.eclipse.jgit.lib.*;
-import org.junit.*;
-import roadmap.util.*;
+import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.ObjectId;
+import org.junit.Test;
+import roadmap.util.Util;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class HeadSetTest {
     @Test public void testSet()

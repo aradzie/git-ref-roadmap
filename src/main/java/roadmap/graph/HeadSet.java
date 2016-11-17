@@ -1,9 +1,11 @@
 package roadmap.graph;
 
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.ObjectId;
 import roadmap.ref.Ref;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Set;
 
 /** Set of reachable heads implemented as a simple and fast bit set. */
 final class HeadSet {

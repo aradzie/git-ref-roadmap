@@ -1,10 +1,17 @@
 package roadmap.util;
 
-import org.eclipse.jgit.lib.*;
-import org.kohsuke.args4j.*;
-import org.kohsuke.args4j.spi.*;
+import org.eclipse.jgit.lib.ObjectId;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
+import org.kohsuke.args4j.OptionDef;
+import org.kohsuke.args4j.OptionHandlerRegistry;
+import org.kohsuke.args4j.spi.OptionHandler;
+import org.kohsuke.args4j.spi.Parameters;
+import org.kohsuke.args4j.spi.Setter;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 public abstract class CliApp {
     public static class StatusException

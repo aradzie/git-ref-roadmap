@@ -1,8 +1,11 @@
 package roadmap.graph;
 
-import roadmap.ref.*;
+import roadmap.ref.Ref;
+import roadmap.ref.RefFilter;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Iterator;
+import java.util.Set;
 
 /** Rewrite graph by eliminating uninteresting nodes. */
 abstract class Rewriter {

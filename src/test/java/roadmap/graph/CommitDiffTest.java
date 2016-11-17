@@ -1,15 +1,21 @@
 package roadmap.graph;
 
-import org.eclipse.jgit.junit.*;
-import org.eclipse.jgit.lib.*;
-import org.eclipse.jgit.revwalk.*;
-import org.junit.*;
-import roadmap.test.*;
+import org.eclipse.jgit.junit.TestRepository;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.junit.Rule;
+import org.junit.Test;
+import roadmap.test.RepositorySetup;
+import roadmap.test.RepositorySetupRule;
 
-import java.util.*;
+import java.util.HashSet;
 
-import static org.eclipse.jgit.lib.Constants.*;
-import static org.junit.Assert.*;
+import static org.eclipse.jgit.lib.Constants.HEAD;
+import static org.eclipse.jgit.lib.Constants.R_HEADS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class CommitDiffTest {
     /**

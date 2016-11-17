@@ -1,13 +1,16 @@
 package roadmap.plot;
 
-import roadmap.graph.*;
-import roadmap.graph.Layout.*;
-import roadmap.ref.*;
+import roadmap.graph.Layout;
+import roadmap.graph.Layout.Partition;
+import roadmap.graph.Layout.Vertex;
+import roadmap.graph.Layout.VertexVisitor;
+import roadmap.graph.RefGraph;
+import roadmap.ref.Ref;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.*;
-import java.util.*;
+import java.awt.geom.AffineTransform;
+import java.util.Iterator;
 
 /** Swing component to draw graph of commits. */
 public class PlotPanel

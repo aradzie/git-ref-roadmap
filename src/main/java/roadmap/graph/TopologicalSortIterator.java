@@ -1,6 +1,10 @@
 package roadmap.graph;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 class TopologicalSortIterator
         implements Iterator<RefGraph.Node> {

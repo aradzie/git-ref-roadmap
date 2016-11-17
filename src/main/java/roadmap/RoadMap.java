@@ -1,20 +1,33 @@
 package roadmap;
 
-import org.eclipse.jgit.lib.*;
-import org.eclipse.jgit.storage.file.*;
-import org.kohsuke.args4j.*;
-import roadmap.graph.*;
-import roadmap.plot.*;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.kohsuke.args4j.Argument;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
+import roadmap.graph.CommitDetails;
+import roadmap.graph.CommitList;
+import roadmap.graph.RefDiff;
+import roadmap.graph.RefGraph;
+import roadmap.plot.PlotPanel;
 import roadmap.ref.Ref;
-import roadmap.ref.*;
-import roadmap.util.*;
+import roadmap.ref.RefSet;
+import roadmap.util.CliApp;
 
 import javax.swing.*;
-import java.io.*;
-import java.text.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 
-import static java.text.DateFormat.*;
+import static java.text.DateFormat.SHORT;
+import static java.text.DateFormat.getDateTimeInstance;
 
 public class RoadMap
         extends CliApp {

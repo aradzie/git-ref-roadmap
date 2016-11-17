@@ -1,6 +1,6 @@
 package roadmap.test;
 
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.Repository;
 
 /** Prepare repository for testing, populate it with test data. */
 public interface RepositorySetup {

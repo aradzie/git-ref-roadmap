@@ -1,17 +1,26 @@
 package roadmap.graph;
 
-import org.eclipse.jgit.junit.*;
-import org.eclipse.jgit.lib.*;
-import org.eclipse.jgit.revwalk.*;
-import org.junit.*;
+import org.eclipse.jgit.junit.TestRepository;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.junit.Rule;
+import org.junit.Test;
 import roadmap.ref.Ref;
-import roadmap.ref.*;
-import roadmap.test.*;
+import roadmap.ref.RefSet;
+import roadmap.test.RepositorySetup;
+import roadmap.test.RepositorySetupRule;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
 
-import static org.eclipse.jgit.lib.Constants.*;
-import static org.junit.Assert.*;
+import static org.eclipse.jgit.lib.Constants.HEAD;
+import static org.eclipse.jgit.lib.Constants.R_HEADS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class CommitListTest {
     @Rule public final RepositorySetupRule setup = new RepositorySetupRule();

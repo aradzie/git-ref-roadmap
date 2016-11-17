@@ -1,10 +1,12 @@
 package roadmap.ref;
 
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.ObjectId;
 
-import java.util.*;
+import java.util.Objects;
 
-import static org.eclipse.jgit.lib.Constants.*;
+import static org.eclipse.jgit.lib.Constants.R_HEADS;
+import static org.eclipse.jgit.lib.Constants.R_REMOTES;
+import static org.eclipse.jgit.lib.Constants.R_TAGS;
 
 /**
  * Represents branch or unannotated tag, maps branch or tag name to an object id.

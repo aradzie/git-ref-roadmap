@@ -1,6 +1,9 @@
 package roadmap.graph;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Set;
 
 // TODO new HeadSet.Builder(nodes) should only include refs nodes, but not merge base nodes?
 

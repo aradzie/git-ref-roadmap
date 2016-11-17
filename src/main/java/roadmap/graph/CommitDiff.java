@@ -1,10 +1,13 @@
 package roadmap.graph;
 
-import org.eclipse.jgit.lib.*;
-import org.eclipse.jgit.revwalk.*;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.HashSet;
+import java.util.Set;
 
 public class CommitDiff {
     public interface Sink {

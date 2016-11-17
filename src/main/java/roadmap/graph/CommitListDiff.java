@@ -1,8 +1,12 @@
 package roadmap.graph;
 
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.ObjectId;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.PriorityQueue;
 
 /**
  * Finds added and removed commits between to lists, starting from the specified

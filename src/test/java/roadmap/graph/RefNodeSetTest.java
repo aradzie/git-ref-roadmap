@@ -1,11 +1,15 @@
 package roadmap.graph;
 
-import org.junit.*;
-import roadmap.util.*;
+import org.junit.Test;
+import roadmap.util.Util;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class RefNodeSetTest {
     @Test public void set()

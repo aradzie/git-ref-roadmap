@@ -1,12 +1,22 @@
 package roadmap.graph;
 
-import org.eclipse.jgit.lib.*;
-import org.eclipse.jgit.revwalk.*;
+import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.revwalk.RevCommit;
 import roadmap.ref.Ref;
-import roadmap.ref.*;
+import roadmap.ref.RefFilter;
+import roadmap.ref.RefSet;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 /** Ref ancestry graph it only includes ref nodes and merge base nodes. */
 public class RefGraph

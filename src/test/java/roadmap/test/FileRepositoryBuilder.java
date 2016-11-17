@@ -1,10 +1,10 @@
 package roadmap.test;
 
-import org.eclipse.jgit.errors.*;
-import org.eclipse.jgit.internal.storage.file.*;
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.errors.RepositoryNotFoundException;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.BaseRepositoryBuilder;
 
-import java.io.*;
+import java.io.IOException;
 
 public class FileRepositoryBuilder
         extends

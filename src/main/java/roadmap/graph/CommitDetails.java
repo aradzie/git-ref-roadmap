@@ -1,7 +1,7 @@
 package roadmap.graph;
 
-import org.eclipse.jgit.lib.*;
-import org.eclipse.jgit.revwalk.*;
+import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.revwalk.RevCommit;
 
 /**
  * Information about parsed commit, it includes message, author and committer.

@@ -1,11 +1,13 @@
 package roadmap.graph;
 
-import org.eclipse.jgit.junit.*;
-import org.eclipse.jgit.lib.*;
-import org.eclipse.jgit.revwalk.*;
-import roadmap.test.*;
+import org.eclipse.jgit.junit.TestRepository;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import roadmap.test.RepositorySetup;
 
-import static org.eclipse.jgit.lib.Constants.*;
+import static org.eclipse.jgit.lib.Constants.HEAD;
+import static org.eclipse.jgit.lib.Constants.R_HEADS;
+import static org.eclipse.jgit.lib.Constants.R_TAGS;
 
 class Examples {
     /**

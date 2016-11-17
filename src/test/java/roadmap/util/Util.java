@@ -1,8 +1,8 @@
 package roadmap.util;
 
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.ObjectId;
 
-import java.util.*;
+import java.util.Random;
 
 public class Util {
     private static final Random random = new Random();

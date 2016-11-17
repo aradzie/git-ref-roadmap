@@ -1,7 +1,8 @@
 package roadmap.test;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 public class TemporaryFiles {
     private static final LinkedList<File> files = new LinkedList<>();

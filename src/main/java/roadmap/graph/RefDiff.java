@@ -1,6 +1,7 @@
 package roadmap.graph;
 
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.ObjectId;
 
 /** Difference in number of commits between two heads. */
 public final class RefDiff

@@ -1,10 +1,11 @@
 package roadmap.test;
 
-import org.eclipse.jgit.internal.storage.file.*;
-import org.eclipse.jgit.lib.*;
-import org.junit.rules.*;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.Repository;
+import org.junit.rules.ExternalResource;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 
 public class RepositorySetupRule
         extends ExternalResource {

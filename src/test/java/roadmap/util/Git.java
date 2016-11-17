@@ -1,11 +1,18 @@
 package roadmap.util;
 
-import org.eclipse.jgit.lib.*;
-import org.junit.*;
+import org.eclipse.jgit.lib.FileMode;
+import org.eclipse.jgit.lib.ObjectId;
+import org.junit.Assert;
 
-import java.io.*;
-import java.util.*;
-import java.util.regex.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /** Helper class to execute native Git commands and parse results. */
 public class Git {
