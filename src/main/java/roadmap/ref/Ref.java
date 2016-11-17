@@ -9,7 +9,7 @@ import static org.eclipse.jgit.lib.Constants.R_REMOTES;
 import static org.eclipse.jgit.lib.Constants.R_TAGS;
 
 /**
- * Represents branch or unannotated tag, maps branch or tag name to an object id.
+ * Represents branch or unannotated tag, maps branch or tag name to object id.
  *
  * <p>Here's the basic bits of refs science. Reference binds arbitrary human
  * readable name to an object in the repository. Ref name is chosen by a user to
