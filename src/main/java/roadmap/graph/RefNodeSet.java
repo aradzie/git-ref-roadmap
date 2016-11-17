@@ -6,7 +6,9 @@ import roadmap.util.*;
 import java.util.*;
 
 /** Set of ref graph nodes which allows mapping of object ids to nodes. */
-class RefNodeSet extends AbstractSet<RefGraph.Node> implements Iterable<RefGraph.Node> {
+class RefNodeSet
+        extends AbstractSet<RefGraph.Node>
+        implements Iterable<RefGraph.Node> {
     private static final RefGraph.Node DELETED = new RefGraph.Node(ObjectId.zeroId());
     private static final int INITIAL_CAPACITY = Primes.nextPrime(32);
     private RefGraph.Node[] data;
@@ -165,7 +167,8 @@ class RefNodeSet extends AbstractSet<RefGraph.Node> implements Iterable<RefGraph
         return new IteratorImpl();
     }
 
-    private final class IteratorImpl implements Iterator<RefGraph.Node> {
+    private final class IteratorImpl
+            implements Iterator<RefGraph.Node> {
         RefGraph.Node[] data;
         int index;
         RefGraph.Node last;
@@ -194,7 +197,7 @@ class RefNodeSet extends AbstractSet<RefGraph.Node> implements Iterable<RefGraph
                 last = data[index];
                 index = findNext(index + 1);
                 if (index == data.length) {
-                    data = new RefGraph.Node[]{};
+                    data = new RefGraph.Node[] {};
                 }
                 return last;
             }

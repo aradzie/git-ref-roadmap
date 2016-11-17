@@ -14,7 +14,8 @@ public class Git {
                 throws IOException;
     }
 
-    public abstract static class ResultHandler<R> implements LineHandler {
+    public abstract static class ResultHandler<R>
+            implements LineHandler {
         public abstract R result();
 
         protected static void unexpected(String line) {
@@ -22,7 +23,8 @@ public class Git {
         }
     }
 
-    public static class CaptureResult extends ResultHandler<String> {
+    public static class CaptureResult
+            extends ResultHandler<String> {
         private final StringBuilder buf = new StringBuilder();
 
         @Override public String result() {
@@ -35,7 +37,8 @@ public class Git {
         }
     }
 
-    public static class IgnoreResult extends ResultHandler<Void> {
+    public static class IgnoreResult
+            extends ResultHandler<Void> {
         @Override public Void result() {
             return null;
         }
@@ -44,7 +47,8 @@ public class Git {
                 throws IOException {}
     }
 
-    public static class EmptyResult extends ResultHandler<Void> {
+    public static class EmptyResult
+            extends ResultHandler<Void> {
         @Override public Void result() {
             return null;
         }
@@ -55,7 +59,8 @@ public class Git {
         }
     }
 
-    public static class IdResult extends ResultHandler<ObjectId> {
+    public static class IdResult
+            extends ResultHandler<ObjectId> {
         private ObjectId result;
 
         @Override public ObjectId result() {
@@ -74,7 +79,8 @@ public class Git {
         }
     }
 
-    public static class IdListResult extends ResultHandler<List<ObjectId>> {
+    public static class IdListResult
+            extends ResultHandler<List<ObjectId>> {
         private final ArrayList<ObjectId> result = new ArrayList<>();
 
         @Override public List<ObjectId> result() {
@@ -131,7 +137,8 @@ public class Git {
 //        }
 //    }
 
-    public static class StatusResult extends ResultHandler<List<StatusResult.Item>> {
+    public static class StatusResult
+            extends ResultHandler<List<StatusResult.Item>> {
         public enum Status {
             UNTRACKED('?'),
             IGNORED('!'),
@@ -158,7 +165,8 @@ public class Git {
             }
         }
 
-        public static class Item implements Comparable<Item> {
+        public static class Item
+                implements Comparable<Item> {
             public final Status index;
             public final Status workingTree;
             public final String path;
@@ -292,7 +300,8 @@ public class Git {
 //        }
 //    }
 
-    public static class MergeResult extends ResultHandler<Void> {
+    public static class MergeResult
+            extends ResultHandler<Void> {
         private static final String NAME = "([/a-zA-Z0-9\\.\\-~]+)";
         private static final Pattern P_ADDING = Pattern.compile(
                 "^Adding " + NAME + "$");
@@ -533,7 +542,8 @@ public class Git {
         }
     }
 
-    public static class Version extends Command {
+    public static class Version
+            extends Command {
         protected Version(String command) {
             super(command);
         }
@@ -553,7 +563,8 @@ public class Git {
         @Override protected void validate() {}
     }
 
-    public static class Config extends Command {
+    public static class Config
+            extends Command {
         private String name;
         private String value;
 
@@ -589,7 +600,8 @@ public class Git {
     }
 
     /** Git {@code rev-list} command. */
-    public static class Checkout extends Command {
+    public static class Checkout
+            extends Command {
         private boolean force;
         private boolean orphan;
         private boolean merge;
@@ -679,7 +691,8 @@ public class Git {
     }
 
     /** Git {@code rev-list} command. */
-    public static class RevList extends Command {
+    public static class RevList
+            extends Command {
         private final ArrayList<String> tree = new ArrayList<>();
 
         protected RevList(String command) {
@@ -708,7 +721,8 @@ public class Git {
     }
 
     /** Git {@code merge-base} command. */
-    public static class MergeBase extends Command {
+    public static class MergeBase
+            extends Command {
         private boolean all;
         private boolean octopus;
         private final ArrayList<String> commit = new ArrayList<>();
@@ -755,7 +769,8 @@ public class Git {
     }
 
     /** Git {@code read-tree} command. */
-    public static class ReadTree extends Command {
+    public static class ReadTree
+            extends Command {
         private boolean ignoreWorkTree;
         private boolean updateWorkTree;
         private boolean merge;
@@ -838,7 +853,8 @@ public class Git {
     }
 
     /** Git {@code write-tree} command. */
-    public static class WriteTree extends Command {
+    public static class WriteTree
+            extends Command {
         protected WriteTree(String command) {
             super(command);
         }
@@ -857,7 +873,8 @@ public class Git {
     }
 
     /** Git {@code diff-tree} command. */
-    public static class DiffTree extends Command {
+    public static class DiffTree
+            extends Command {
         private boolean recursive;
         private boolean noRenames;
         private boolean breakRewrites;
@@ -1001,7 +1018,8 @@ public class Git {
     }
 
     /** Git {@code ls-files} command. */
-    public static class LsFiles extends Command {
+    public static class LsFiles
+            extends Command {
         private boolean cached;
         private boolean deleted;
         private boolean modified;
@@ -1093,7 +1111,8 @@ public class Git {
     }
 
     /** Git {@code status} command. */
-    public static class Status extends Command {
+    public static class Status
+            extends Command {
         private String untracked;
         private boolean ignored;
 
@@ -1132,7 +1151,8 @@ public class Git {
     }
 
     /** Git {@code reset} command. */
-    public static class Reset extends Command {
+    public static class Reset
+            extends Command {
         private boolean soft;
         private boolean mixed;
         private boolean hard;
@@ -1188,7 +1208,8 @@ public class Git {
     }
 
     /** Git {@code merge} command. */
-    public static class Merge extends Command {
+    public static class Merge
+            extends Command {
         private boolean squash;
         private boolean noSquash;
         private boolean stat;
@@ -1262,7 +1283,8 @@ public class Git {
     }
 
     /** Git {@code merge-file} command. */
-    public static class MergeFile extends Command {
+    public static class MergeFile
+            extends Command {
         private boolean ours;
         private boolean theirs;
         private boolean union;
@@ -1396,7 +1418,8 @@ public class Git {
     }
 
     /** Git {@code blame} command. */
-    public static class Blame extends Command {
+    public static class Blame
+            extends Command {
         private boolean findRenames;
         private int findRenamesN;
         private boolean findCopies;
@@ -1472,7 +1495,8 @@ public class Git {
     }
 
     /** Reads data from process output pipe. */
-    private static class ReaderThread extends Thread {
+    private static class ReaderThread
+            extends Thread {
         private final InputStream in;
         private final LineHandler lineHandler;
         private IOException ex;
@@ -1510,7 +1534,8 @@ public class Git {
                 try {
                     in.close();
                 }
-                catch (IOException e) {}
+                catch (IOException e) {
+                }
             }
         }
 
@@ -1534,7 +1559,8 @@ public class Git {
                 process.waitFor();
                 break;
             }
-            catch (InterruptedException ex) {}
+            catch (InterruptedException ex) {
+            }
         }
     }
 
@@ -1544,7 +1570,8 @@ public class Git {
                 thread.join();
                 break;
             }
-            catch (InterruptedException ex) {}
+            catch (InterruptedException ex) {
+            }
         }
     }
 

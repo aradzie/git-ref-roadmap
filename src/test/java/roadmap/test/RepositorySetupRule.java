@@ -6,7 +6,8 @@ import org.junit.rules.*;
 
 import java.io.*;
 
-public class RepositorySetupRule extends ExternalResource {
+public class RepositorySetupRule
+        extends ExternalResource {
     public FileRepository setupBare(RepositorySetup s)
             throws IOException {
         return createBare(s, TemporaryFiles.dir());

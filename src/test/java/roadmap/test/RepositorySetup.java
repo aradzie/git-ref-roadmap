@@ -4,7 +4,8 @@ import org.eclipse.jgit.lib.*;
 
 /** Prepare repository for testing, populate it with test data. */
 public interface RepositorySetup {
-    class Empty implements RepositorySetup {
+    class Empty
+            implements RepositorySetup {
         @Override public void play(Repository repository)
                 throws Exception {}
     }

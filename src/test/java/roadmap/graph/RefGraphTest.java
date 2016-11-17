@@ -18,7 +18,8 @@ public class RefGraphTest {
 
     @Test public void emptyGraph()
             throws Exception {
-        class Setup extends RepositorySetup.Empty {
+        class Setup
+                extends RepositorySetup.Empty {
             //
         }
         Setup s = new Setup();
@@ -51,7 +52,8 @@ public class RefGraphTest {
          * o------o
          * </pre>
          */
-        class Setup implements RepositorySetup {
+        class Setup
+                implements RepositorySetup {
             RevCommit a, b, c, d, e, f;
 
             @Override public void play(Repository repository)
@@ -110,7 +112,8 @@ public class RefGraphTest {
          *           C,c  E,e  G,g
          * </pre>
          */
-        class Setup implements RepositorySetup {
+        class Setup
+                implements RepositorySetup {
             RevCommit a, b, c, d, e, f, g;
 
             @Override public void play(Repository repository)
@@ -163,7 +166,8 @@ public class RefGraphTest {
          * o--------o-----o
          * </pre>
          */
-        class Setup implements RepositorySetup {
+        class Setup
+                implements RepositorySetup {
             RevCommit a, b, c, d, e;
 
             @Override public void play(Repository repository)
@@ -215,7 +219,8 @@ public class RefGraphTest {
          * o--------o-----o
          * </pre>
          */
-        class Setup implements RepositorySetup {
+        class Setup
+                implements RepositorySetup {
             RevCommit a, b, c, d;
 
             @Override public void play(Repository repository)
@@ -268,7 +273,8 @@ public class RefGraphTest {
          * o--------o-----o
          * </pre>
          */
-        class Setup implements RepositorySetup {
+        class Setup
+                implements RepositorySetup {
             RevCommit a, b, c, d, e;
 
             @Override public void play(Repository repository)
@@ -323,7 +329,8 @@ public class RefGraphTest {
          * o
          * </pre>
          */
-        class Setup implements RepositorySetup {
+        class Setup
+                implements RepositorySetup {
             RevCommit a;
 
             @Override public void play(Repository repository)
@@ -354,7 +361,8 @@ public class RefGraphTest {
          * o--------o-------o
          * </pre>
          */
-        class Setup implements RepositorySetup {
+        class Setup
+                implements RepositorySetup {
             RevCommit a, b, c;
 
             @Override public void play(Repository repository)
@@ -404,7 +412,8 @@ public class RefGraphTest {
          * o------+
          * </pre>
          */
-        class Setup implements RepositorySetup {
+        class Setup
+                implements RepositorySetup {
             RevCommit a, b, c, d;
 
             @Override public void play(Repository repository)

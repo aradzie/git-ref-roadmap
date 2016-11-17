@@ -2,7 +2,8 @@ package roadmap.graph;
 
 import java.util.*;
 
-class BreadthFirstIterator implements Iterator<RefGraph.Node> {
+class BreadthFirstIterator
+        implements Iterator<RefGraph.Node> {
     private final HashSet<RefGraph.Node> seen = new HashSet<>();
     private final ArrayDeque<RefGraph.Node> queue = new ArrayDeque<>();
     private RefGraph.Node next;

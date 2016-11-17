@@ -19,7 +19,8 @@ class Examples {
      * o--------o-----o-----o
      * </pre>
      */
-    static class E1 implements RepositorySetup {
+    static class E1
+            implements RepositorySetup {
         RevCommit a, b, c, d, e, f, g;
 
         @Override public void play(Repository repository)
@@ -51,7 +52,8 @@ class Examples {
      *       d   f       g
      * </pre>
      */
-    static class E2 implements RepositorySetup {
+    static class E2
+            implements RepositorySetup {
         RevCommit a, b, c, d, e, f, g;
 
         @Override public void play(Repository repository)
@@ -82,7 +84,8 @@ class Examples {
      * o--------o-----o
      * </pre>
      */
-    static class E3 implements RepositorySetup {
+    static class E3
+            implements RepositorySetup {
         RevCommit a;
         RevCommit b;
         RevCommit c;

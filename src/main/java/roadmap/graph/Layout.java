@@ -14,7 +14,8 @@ public class Layout {
     /** Graph edge crossing reduction facility. */
     private class LayerStack {
         /** Specialized array list to hold vertexes from a single layer. */
-        class Layer extends ArrayList<Vertex> {
+        class Layer
+                extends ArrayList<Vertex> {
             /** Initial arrangement of vertexes on a layer. */
             void init() {
                 Collections.sort(this, VERTEX_BY_WEIGHT_REVERSE);
@@ -160,7 +161,8 @@ public class Layout {
     }
 
     /** Groups subgraph nodes. */
-    public class Partition implements Iterable<Vertex> {
+    public class Partition
+            implements Iterable<Vertex> {
         private final HashSet<Node> roots = new HashSet<>();
         private final ArrayList<Vertex> points = new ArrayList<>();
         private final Vertex tail;
@@ -422,7 +424,8 @@ public class Layout {
     }
 
     /** Synthetic vertex generated for long edges spanning multiple levels. */
-    public class Bend extends Vertex {
+    public class Bend
+            extends Vertex {
         private Bend(int layer) {
             this.layer = layer;
         }
@@ -433,7 +436,8 @@ public class Layout {
     }
 
     /** Vertex for a commit. */
-    public class Node extends Vertex {
+    public class Node
+            extends Vertex {
         public final ObjectId id;
         public final Set<roadmap.ref.Ref> refs;
 
@@ -451,7 +455,8 @@ public class Layout {
      * Iterates over graph vertex nodes with no particular ordering,
      * just doing breadth-first search.
      */
-    private static class BreadthFirstIterator implements Iterator<Vertex> {
+    private static class BreadthFirstIterator
+            implements Iterator<Vertex> {
         final HashSet<Vertex> seen = new HashSet<>();
         final ArrayDeque<Vertex> queue = new ArrayDeque<>();
         Vertex next;
@@ -496,7 +501,8 @@ public class Layout {
      * Iterates over graph vertex nodes ordering them topologically,
      * so that no parents may come before children.
      */
-    private static class TopologicalSortIterator implements Iterator<Vertex> {
+    private static class TopologicalSortIterator
+            implements Iterator<Vertex> {
         final ArrayDeque<Vertex> queue = new ArrayDeque<>();
         Vertex next;
 

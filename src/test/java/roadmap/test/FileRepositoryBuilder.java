@@ -6,7 +6,8 @@ import org.eclipse.jgit.lib.*;
 
 import java.io.*;
 
-public class FileRepositoryBuilder extends
+public class FileRepositoryBuilder
+        extends
         BaseRepositoryBuilder<FileRepositoryBuilder, FileRepository> {
     @Override public FileRepository build()
             throws IOException {

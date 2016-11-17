@@ -16,7 +16,8 @@ import static org.eclipse.jgit.lib.Constants.*;
  * <p>We are only interested in refs that point to commits.
  * Refs pointing to trees and blobs will be excluded from the set.</p>
  */
-public final class RefSet implements Iterable<Ref> {
+public final class RefSet
+        implements Iterable<Ref> {
     public static RefSet from(Repository db)
             throws IOException {
         return build(new RevWalk(db), db.getAllRefs());
@@ -152,8 +153,12 @@ public final class RefSet implements Iterable<Ref> {
     }
 
     @Override public boolean equals(Object o) {
-        if (this == o) { return true; }
-        if (!(o instanceof RefSet)) { return false; }
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof RefSet)) {
+            return false;
+        }
         RefSet that = (RefSet) o;
         return byName.equals(that.byName) && Objects.equals(defaultBranch, that.defaultBranch);
     }

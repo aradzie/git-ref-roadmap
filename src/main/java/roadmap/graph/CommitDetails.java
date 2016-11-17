@@ -10,7 +10,8 @@ import org.eclipse.jgit.revwalk.*;
  * about memory consumption, so we only retrieve commit details on demand by
  * loading bytes from the owning repository and parsing commit body.</p>
  */
-public class CommitDetails extends Commit {
+public class CommitDetails
+        extends Commit {
     private final String message;
     private final PersonIdent author;
     private final PersonIdent committer;

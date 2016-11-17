@@ -20,7 +20,8 @@ public class CommitListTest {
             throws Exception {
         final int commits = 100;
 
-        class Setup implements RepositorySetup {
+        class Setup
+                implements RepositorySetup {
             @Override public void play(Repository repository)
                     throws Exception {
                 TestRepository<Repository> util = new TestRepository<>(repository);
@@ -96,7 +97,8 @@ public class CommitListTest {
      * o------o
      * </pre>
      */
-    public static class Setup implements RepositorySetup {
+    public static class Setup
+            implements RepositorySetup {
         RevCommit a, b, c, d, e, f;
 
         @Override public void play(Repository repository)
@@ -130,15 +132,15 @@ public class CommitListTest {
         Iterator<Commit> it;
 
         it = list.iteratorBuilder()
-                .since(refs.selectAll(Arrays.asList("refs/heads/F")))
-                .make().iterator();
+                 .since(refs.selectAll(Arrays.asList("refs/heads/F")))
+                 .make().iterator();
         assertTrue(it.hasNext());
         assertEquals(s.f, it.next());
         assertFalse(it.hasNext());
 
         it = list.iteratorBuilder()
-                .since(refs.selectAll(Arrays.asList("refs/heads/A")))
-                .make().iterator();
+                 .since(refs.selectAll(Arrays.asList("refs/heads/A")))
+                 .make().iterator();
         assertTrue(it.hasNext());
         assertEquals(s.a, it.next());
         assertTrue(it.hasNext());
@@ -146,17 +148,17 @@ public class CommitListTest {
         assertFalse(it.hasNext());
 
         it = list.iteratorBuilder()
-                .since(refs.selectAll(Arrays.asList("refs/heads/A")))
-                .until(refs.selectAll(Arrays.asList("refs/heads/F")))
-                .make().iterator();
+                 .since(refs.selectAll(Arrays.asList("refs/heads/A")))
+                 .until(refs.selectAll(Arrays.asList("refs/heads/F")))
+                 .make().iterator();
         assertTrue(it.hasNext());
         assertEquals(s.a, it.next());
         assertFalse(it.hasNext());
 
         it = list.iteratorBuilder()
-                .since(refs.selectAll(Arrays.asList("refs/heads/A")))
-                .until(refs.selectAll(Arrays.asList("refs/heads/B", "refs/heads/D")))
-                .make().iterator();
+                 .since(refs.selectAll(Arrays.asList("refs/heads/A")))
+                 .until(refs.selectAll(Arrays.asList("refs/heads/B", "refs/heads/D")))
+                 .make().iterator();
         assertTrue(it.hasNext());
         assertEquals(s.a, it.next());
         assertFalse(it.hasNext());

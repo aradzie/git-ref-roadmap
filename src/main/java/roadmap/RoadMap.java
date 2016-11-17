@@ -16,7 +16,8 @@ import java.util.*;
 
 import static java.text.DateFormat.*;
 
-public class RoadMap extends CliApp {
+public class RoadMap
+        extends CliApp {
     private static class Row {
         static final Comparator<Row> COMPARATOR = new Comparator<Row>() {
             @Override public int compare(Row o1, Row o2) {

@@ -9,11 +9,14 @@ import java.io.*;
 import java.util.*;
 
 /** Ref ancestry graph it only includes ref nodes and merge base nodes. */
-public class RefGraph implements Iterable<RefGraph.Node> {
+public class RefGraph
+        implements Iterable<RefGraph.Node> {
     /** Single node from ref graph. */
-    public static class Node extends ObjectId {
+    public static class Node
+            extends ObjectId {
         /** Keeps {@link #getChildren()} in sync with parents. */
-        private class ParentHashSet extends HashSet<Node> {
+        private class ParentHashSet
+                extends HashSet<Node> {
             @Override public boolean add(Node node) {
                 assert !Node.this.equals(node);
                 boolean b = super.add(node);
@@ -57,7 +60,8 @@ public class RefGraph implements Iterable<RefGraph.Node> {
             }
         }
 
-        class NodeHashSet extends HashSet<Node> {
+        class NodeHashSet
+                extends HashSet<Node> {
             @Override public boolean add(Node node) {
                 assert !Node.this.equals(node);
                 return super.add(node);

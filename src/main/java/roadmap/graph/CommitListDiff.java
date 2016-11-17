@@ -22,7 +22,8 @@ public class CommitListDiff {
      * already established in commit indexes, so the iterating algorithm
      * is a little bit simpler and faster.
      */
-    private static class IteratorImpl implements Iterator<Commit> {
+    private static class IteratorImpl
+            implements Iterator<Commit> {
         static final Comparator<Commit> CMP = new Comparator<Commit>() {
             @Override public int compare(Commit o1, Commit o2) {
                 return o1.getIndex() - o2.getIndex();

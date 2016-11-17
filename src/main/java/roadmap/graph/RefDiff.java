@@ -3,7 +3,8 @@ package roadmap.graph;
 import org.eclipse.jgit.lib.*;
 
 /** Difference in number of commits between two heads. */
-public final class RefDiff implements Comparable<RefDiff> {
+public final class RefDiff
+        implements Comparable<RefDiff> {
     /** Receives calculated ref diffs. */
     public interface Sink {
         void add(AnyObjectId mergeBase,
@@ -78,10 +79,16 @@ public final class RefDiff implements Comparable<RefDiff> {
     }
 
     @Override public boolean equals(Object o) {
-        if (this == o) { return true; }
-        if (!(o instanceof RefDiff)) { return false; }
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof RefDiff)) {
+            return false;
+        }
         RefDiff that = (RefDiff) o;
-        if (!ObjectId.equals(mergeBase, that.mergeBase)) { return false; }
+        if (!ObjectId.equals(mergeBase, that.mergeBase)) {
+            return false;
+        }
         return ObjectId.equals(a, that.a) && ObjectId.equals(b, that.b)
                 || ObjectId.equals(a, that.b) && ObjectId.equals(b, that.a);
     }

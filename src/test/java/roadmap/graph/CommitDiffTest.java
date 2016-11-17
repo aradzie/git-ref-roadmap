@@ -26,7 +26,8 @@ public class CommitDiffTest {
      *           C,c  E,e  G,g  H,h  I,i
      * </pre>
      */
-    class Setup implements RepositorySetup {
+    class Setup
+            implements RepositorySetup {
         RevCommit a, b, c, d, e, f, g, h, i;
 
         @Override public void play(Repository repository)
@@ -52,7 +53,8 @@ public class CommitDiffTest {
         }
     }
 
-    class Sink implements CommitDiff.Sink {
+    class Sink
+            implements CommitDiff.Sink {
         final HashSet<ObjectId> added = new HashSet<>();
         final HashSet<ObjectId> removed = new HashSet<>();
 
@@ -244,7 +246,8 @@ public class CommitDiffTest {
          *      b o
          * </pre>
          */
-        class Setup implements RepositorySetup {
+        class Setup
+                implements RepositorySetup {
             RevCommit a, b, c, d, e, f;
 
             @Override public void play(Repository repository)

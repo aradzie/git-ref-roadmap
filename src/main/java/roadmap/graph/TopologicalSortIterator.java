@@ -2,7 +2,8 @@ package roadmap.graph;
 
 import java.util.*;
 
-class TopologicalSortIterator implements Iterator<RefGraph.Node> {
+class TopologicalSortIterator
+        implements Iterator<RefGraph.Node> {
     private final ArrayDeque<RefGraph.Node> queue = new ArrayDeque<>();
     private RefGraph.Node next;
 

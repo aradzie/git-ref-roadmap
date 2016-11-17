@@ -11,7 +11,8 @@ import roadmap.util.*;
 import java.io.*;
 import java.util.*;
 
-public class MergeBaseApp extends CliApp {
+public class MergeBaseApp
+        extends CliApp {
     public static void main(String[] args)
             throws Exception {
         exec(args, new MergeBaseApp());
@@ -45,9 +46,13 @@ public class MergeBaseApp extends CliApp {
         RefGraph graph = list.getRefGraph();
 
         for (Ref a : refs) {
-            if (!a.isBranch()) {continue;}
+            if (!a.isBranch()) {
+                continue;
+            }
             for (Ref b : refs) {
-                if (!b.isBranch()) {continue;}
+                if (!b.isBranch()) {
+                    continue;
+                }
                 TreeSet<RefGraph.Node> our = new TreeSet<>();
                 graph.findMergeBases(
                         graph.node(a.getId()),

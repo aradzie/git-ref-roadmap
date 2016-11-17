@@ -115,7 +115,8 @@ abstract class Rewriter {
     }
 
     /** Remove nodes with tags only except those that are merge bases. */
-    static final class Simplifier extends Rewriter {
+    static final class Simplifier
+            extends Rewriter {
         private final RefNodeSet heads = new RefNodeSet();
         private final RefNodeSet mergeBases = new RefNodeSet();
         private final RefFilter filter;

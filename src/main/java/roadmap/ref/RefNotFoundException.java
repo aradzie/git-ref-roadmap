@@ -1,6 +1,7 @@
 package roadmap.ref;
 
-public class RefNotFoundException extends RuntimeException {
+public class RefNotFoundException
+        extends RuntimeException {
     private final String ref;
 
     public RefNotFoundException(String ref) {

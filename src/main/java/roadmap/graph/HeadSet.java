@@ -13,7 +13,8 @@ final class HeadSet {
      * <p>We are not interested in what refs exactly, we merely need
      * to know where are merge bases for this commit.</p>
      */
-    static class Head extends ObjectId {
+    static class Head
+            extends ObjectId {
         /**
          * The number of commits in all parents of a ref. Which
          * means, the number of commits having this ref.

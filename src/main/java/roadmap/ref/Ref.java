@@ -60,7 +60,8 @@ import static org.eclipse.jgit.lib.Constants.*;
  * is the process of discovering object referred by a tag by recursively walking tag chain
  * until a non-tag object is found.</p>
  */
-public final class Ref implements Comparable<Ref> {
+public final class Ref
+        implements Comparable<Ref> {
     private final String name;
     private final String suffix;
     private final ObjectId id;
@@ -125,11 +126,19 @@ public final class Ref implements Comparable<Ref> {
     }
 
     @Override public boolean equals(Object o) {
-        if (this == o) { return true; }
-        if (!(o instanceof Ref)) { return false; }
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Ref)) {
+            return false;
+        }
         Ref that = (Ref) o;
-        if (!Objects.equals(getName(), that.getName())) { return false; }
-        if (!Objects.equals(getId(), that.getId())) { return false; }
+        if (!Objects.equals(getName(), that.getName())) {
+            return false;
+        }
+        if (!Objects.equals(getId(), that.getId())) {
+            return false;
+        }
         return true;
     }
 

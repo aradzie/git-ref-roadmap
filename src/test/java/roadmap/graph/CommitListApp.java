@@ -11,7 +11,8 @@ import roadmap.util.*;
 import java.io.*;
 import java.util.*;
 
-public class CommitListApp extends CliApp {
+public class CommitListApp
+        extends CliApp {
     public static void main(String[] args)
             throws Exception {
         exec(args, new CommitListApp());

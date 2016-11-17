@@ -11,7 +11,8 @@ import java.util.*;
  * Compact commit representation that only stores bare minimum details,
  * such as commit id, its parent and children.
  */
-public class Commit extends ObjectId {
+public class Commit
+        extends ObjectId {
     private final ObjectId treeId;
     private int index;
     private Object child;
@@ -71,7 +72,7 @@ public class Commit extends ObjectId {
         }
         else {
             if (this.child instanceof Commit) {
-                this.child = new Commit[]{(Commit) this.child, child};
+                this.child = new Commit[] {(Commit) this.child, child};
             }
             else {
                 Commit[] a = (Commit[]) this.child;
@@ -116,7 +117,7 @@ public class Commit extends ObjectId {
         }
         else {
             if (this.parent instanceof Commit) {
-                this.parent = new Commit[]{(Commit) this.parent, parent};
+                this.parent = new Commit[] {(Commit) this.parent, parent};
             }
             else {
                 Commit[] a = (Commit[]) this.parent;

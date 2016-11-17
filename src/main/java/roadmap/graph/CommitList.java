@@ -19,9 +19,11 @@ import java.util.*;
  * consult the method {@link #loadDetails(ObjectReader, AnyObjectId) loadDetails}
  * to get these attributes.</p>
  */
-public class CommitList implements Iterable<Commit> {
+public class CommitList
+        implements Iterable<Commit> {
     /** Collection of head sets collected from all children of a commit. */
-    private static class HeadSetCollection extends ArrayList<HeadSet> {
+    private static class HeadSetCollection
+            extends ArrayList<HeadSet> {
         final Commit commit;
 
         HeadSetCollection(Commit c) {
@@ -66,7 +68,8 @@ public class CommitList implements Iterable<Commit> {
     }
 
     /** Specialized rev commit class. */
-    private static class RevCommit extends org.eclipse.jgit.revwalk.RevCommit {
+    private static class RevCommit
+            extends org.eclipse.jgit.revwalk.RevCommit {
         private Commit commit;
         private Object child;
 
@@ -85,7 +88,7 @@ public class CommitList implements Iterable<Commit> {
             }
             else {
                 if (this.child instanceof RevCommit) {
-                    this.child = new RevCommit[]{(RevCommit) this.child, child};
+                    this.child = new RevCommit[] {(RevCommit) this.child, child};
                 }
                 else {
                     RevCommit[] a = (RevCommit[]) this.child;
@@ -125,7 +128,8 @@ public class CommitList implements Iterable<Commit> {
     }
 
     /** Specialized rev walk class. */
-    private static class RevWalk extends org.eclipse.jgit.revwalk.RevWalk {
+    private static class RevWalk
+            extends org.eclipse.jgit.revwalk.RevWalk {
         RevWalk(ObjectReader reader)
                 throws IOException {
             super(reader);
@@ -220,7 +224,8 @@ public class CommitList implements Iterable<Commit> {
     /** Assists in building iterator over this commit list. */
     public class IteratorBuilder {
         /** Configurable iterator implementation. */
-        private class IteratorImpl implements Iterator<Commit> {
+        private class IteratorImpl
+                implements Iterator<Commit> {
             private int index;
 
             IteratorImpl() {
@@ -354,7 +359,9 @@ public class CommitList implements Iterable<Commit> {
     }
 
     /** Prevents overflowing with ref diff pairs when there are too many refs. */
-    private class RefDiffSink extends HashSet<RefDiff> implements RefDiff.Sink {
+    private class RefDiffSink
+            extends HashSet<RefDiff>
+            implements RefDiff.Sink {
         /**
          * Empirical study suggests that the application and web UI handles
          * repositories of order of ~100 refs quite well. This amounts to

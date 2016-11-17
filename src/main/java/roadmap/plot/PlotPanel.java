@@ -10,8 +10,10 @@ import java.awt.geom.*;
 import java.util.*;
 
 /** Swing component to draw graph of commits. */
-public class PlotPanel extends JPanel {
-    private class DrawEdges implements VertexVisitor {
+public class PlotPanel
+        extends JPanel {
+    private class DrawEdges
+            implements VertexVisitor {
         final Graphics2D g;
 
         DrawEdges(Graphics2D g) {
@@ -37,7 +39,8 @@ public class PlotPanel extends JPanel {
         }
     }
 
-    private class DrawVertex implements VertexVisitor {
+    private class DrawVertex
+            implements VertexVisitor {
         final Graphics2D g;
 
         DrawVertex(Graphics2D g) {
