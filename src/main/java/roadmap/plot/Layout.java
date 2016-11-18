@@ -2,6 +2,7 @@ package roadmap.plot;
 
 import org.eclipse.jgit.lib.ObjectId;
 import roadmap.graph.Graph;
+import roadmap.ref.Ref;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -450,7 +451,7 @@ public class Layout {
     public class Node
             extends Vertex {
         public final ObjectId id;
-        public final Set<roadmap.ref.Ref> refs;
+        public final Set<Ref> refs;
 
         private Node(ObjectId id) {
             this.id = id;

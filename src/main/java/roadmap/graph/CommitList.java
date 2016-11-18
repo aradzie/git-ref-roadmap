@@ -10,6 +10,7 @@ import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.util.RawParseUtils;
+import roadmap.ref.Ref;
 import roadmap.ref.RefDiff;
 import roadmap.ref.RefSet;
 
@@ -298,8 +299,8 @@ public class CommitList
          * @param ref A ref that includes commits reachable from it.
          * @return This instance for fluent interface.
          */
-        public IteratorBuilder since(roadmap.ref.Ref... ref) {
-            for (roadmap.ref.Ref r : ref) {
+        public IteratorBuilder since(Ref... ref) {
+            for (Ref r : ref) {
                 validateRef(r);
                 since.add(hsb, r.getId());
             }
@@ -315,8 +316,8 @@ public class CommitList
          * @param refs A collection of refs that include commits reachable from them.
          * @return This instance for fluent interface.
          */
-        public IteratorBuilder since(Collection<roadmap.ref.Ref> refs) {
-            for (roadmap.ref.Ref r : refs) {
+        public IteratorBuilder since(Collection<Ref> refs) {
+            for (Ref r : refs) {
                 validateRef(r);
                 since.add(hsb, r.getId());
             }
@@ -332,8 +333,8 @@ public class CommitList
          * @param ref A ref that excludes commits reachable from it.
          * @return This instance for fluent interface.
          */
-        public IteratorBuilder until(roadmap.ref.Ref... ref) {
-            for (roadmap.ref.Ref r : ref) {
+        public IteratorBuilder until(Ref... ref) {
+            for (Ref r : ref) {
                 validateRef(r);
                 until.add(hsb, r.getId());
             }
@@ -349,8 +350,8 @@ public class CommitList
          * @param refs A collection of refs that exclude commits reachable from them.
          * @return This instance for fluent interface.
          */
-        public IteratorBuilder until(Collection<roadmap.ref.Ref> refs) {
-            for (roadmap.ref.Ref r : refs) {
+        public IteratorBuilder until(Collection<Ref> refs) {
+            for (Ref r : refs) {
                 validateRef(r);
                 until.add(hsb, r.getId());
             }
@@ -362,7 +363,7 @@ public class CommitList
             return this;
         }
 
-        private void validateRef(roadmap.ref.Ref r) {
+        private void validateRef(Ref r) {
             if (!refs.all().contains(r)) {
                 throw new IllegalStateException("unknown ref");
             }
@@ -394,7 +395,7 @@ public class CommitList
         RefDiffSink(RefSet refs) {
             // All heads from a repository.
             HashSet<Commit> heads = new HashSet<>();
-            for (roadmap.ref.Ref ref : refs.all()) {
+            for (Ref ref : refs.all()) {
                 heads.add(map(ref.getId()));
             }
             add(heads);
@@ -544,7 +545,7 @@ public class CommitList
                 heads = new HeadSet(hsb);
             }
 
-            Set<roadmap.ref.Ref> refs = commit.getRefs();
+            Set<Ref> refs = commit.getRefs();
             if (!refs.isEmpty()) {
                 heads = heads.addRefs(hsb, refs);
                 for (HeadSet tmp : hsc) {
@@ -710,7 +711,7 @@ public class CommitList
      * @param commit Find all refs that contain this commit.
      * @param refs   user specified set of refs to update.
      */
-    public void getRefs(Commit commit, Set<roadmap.ref.Ref> refs) {
+    public void getRefs(Commit commit, Set<Ref> refs) {
         HeadSet.Head[] heads = hsb.select(commit.getHeads());
         for (HeadSet.Head head : heads) {
             refs.addAll(this.refs.byId(head));
@@ -737,7 +738,7 @@ public class CommitList
          * @param ref A ref.
          * @return Number of all commits having the specified ref.
          */
-        public int getTotal(roadmap.ref.Ref ref) {
+        public int getTotal(Ref ref) {
             HeadSet.Head head = total.get(ref.getId());
             if (head == null) {
                 throw new IllegalStateException("unknown ref " + ref);
@@ -750,7 +751,7 @@ public class CommitList
          * @return The number of commits matched the predicate and
          * having the specified ref.
          */
-        public int getMatched(roadmap.ref.Ref ref) {
+        public int getMatched(Ref ref) {
             HeadSet.Head head = matched.get(ref.getId());
             if (head == null) {
                 throw new IllegalStateException("unknown ref" + ref);
