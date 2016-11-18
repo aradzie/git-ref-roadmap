@@ -2,8 +2,4 @@
 
 source "$(git --exec-path)/git-sh-setup"
 
-function _roadmap() {
-    java -jar ./lib/git-roadmap.jar
-}
-
-_roadmap
+java -jar ./lib/git-roadmap.jar "$@"

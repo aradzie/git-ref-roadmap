@@ -1,25 +1,25 @@
 package roadmap.plot;
 
 import roadmap.graph.Layout;
-import roadmap.graph.Layout.Partition;
-import roadmap.graph.Layout.Vertex;
-import roadmap.graph.Layout.VertexVisitor;
-import roadmap.graph.RefGraph;
 import roadmap.ref.Ref;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.util.Iterator;
 
-/** Swing component to draw graph of commits. */
-public class PlotPanel
-        extends JPanel {
-    private class DrawEdges
-            implements VertexVisitor {
+public class GraphPlotter {
+    /** Draws edges. */
+    private class EdgePlotter
+            implements Layout.VertexVisitor {
         final Graphics2D g;
 
-        DrawEdges(Graphics2D g) {
+        EdgePlotter(Graphics2D g) {
             this.g = g;
         }
 
@@ -35,18 +35,19 @@ public class PlotPanel
             int x = X(vertex.col());
             int y = Y(vertex.row());
             g.setColor(Color.DARK_GRAY);
-            g.setStroke(edgeStroke);
-            for (Vertex outgoing : vertex.getOutgoing()) {
+            g.setStroke(EDGE_STROKE);
+            for (Layout.Vertex outgoing : vertex.getOutgoing()) {
                 g.drawLine(x, y, X(outgoing.col()), Y(outgoing.row()));
             }
         }
     }
 
-    private class DrawVertex
-            implements VertexVisitor {
+    /** Draws vertices. */
+    private class VertexPlotter
+            implements Layout.VertexVisitor {
         final Graphics2D g;
 
-        DrawVertex(Graphics2D g) {
+        VertexPlotter(Graphics2D g) {
             this.g = g;
         }
 
@@ -133,58 +134,71 @@ public class PlotPanel
     private static final int V_MARGIN = 70;
     private static final int H_SPACE = 150;
     private static final int V_SPACE = 80;
+    private static final Stroke GRID_STROKE = new BasicStroke(1.0f);
+    private static final Stroke EDGE_STROKE = new BasicStroke(2.0f);
     private static final Color C1A = new Color(0x9ED8BA);
     private static final Color C1B = new Color(0x71B090);
     private static final Color C2A = new Color(0xFF9A40);
     private static final Color C2B = new Color(0xFF7800);
     private static final Color C3A = new Color(0x409EFF);
     private static final Color C3B = new Color(0x007DFF);
-    private static final Stroke gridStroke = new BasicStroke(1.0f);
-    private static final Stroke edgeStroke = new BasicStroke(2.0f);
     private final Layout layout;
+    private final double scale;
+    private final int hMargin;
+    private final int vMargin;
+    private final int hSpace;
+    private final int vSpace;
+    private final int width;
+    private final int height;
+    private final Dimension size;
 
-    public PlotPanel(RefGraph graph) {
-        this.layout = new Layout(graph);
+    public GraphPlotter(Layout layout) {
+        this.layout = layout;
+        scale = SCALE;
+        hMargin = H_MARGIN;
+        vMargin = V_MARGIN;
+        hSpace = H_SPACE;
+        vSpace = V_SPACE;
+        width = (int) Math.ceil(scale * (hMargin * 2 + (layout.getTotalLayers() - 1) * hSpace));
+        height = (int) Math.ceil(scale * (vMargin * 2 + (layout.getTotalLanes() - 1) * vSpace));
+        size = new Dimension(Math.max(width, 600), Math.max(height, 300));
     }
 
-    @Override public Dimension getPreferredSize() {
-        int w = (int) (SCALE * (H_MARGIN * 2 + (layout.getTotalLayers() - 1) * H_SPACE));
-        int h = (int) (SCALE * (V_MARGIN * 2 + (layout.getTotalLanes() - 1) * V_SPACE));
-        return new Dimension(Math.max(w, 600), Math.max(h, 300));
+    public int getWidth() {
+        return width;
     }
 
-    @Override public void paintComponent(Graphics g) {
-        Graphics2D g2d = (Graphics2D) g;
-
-        antiAliasGraphics(g2d);
-
-        draw(g2d);
+    public int getHeight() {
+        return height;
     }
 
-    private void draw(Graphics2D g) {
-        g.setColor(Color.WHITE);
-        g.fillRect(0, 0, getWidth(), getHeight());
+    public Dimension getSize() {
+        return size;
+    }
 
-        g.scale(SCALE, SCALE);
+    public void draw(Graphics2D g) {
+        antiAliasGraphics(g);
+
+        g.scale(scale, scale);
 
         g.setColor(Color.LIGHT_GRAY);
-        g.setStroke(gridStroke);
+        g.setStroke(GRID_STROKE);
 
         for (int n = 0; n < layout.getTotalLayers(); n++) {
-            g.drawLine(X(n), H_MARGIN, X(n), Y(layout.getTotalLanes() - 1));
+            g.drawLine(X(n), hMargin, X(n), Y(layout.getTotalLanes() - 1));
         }
 
         for (int m = 0; m < layout.getTotalLanes(); m++) {
-            g.drawLine(V_MARGIN, Y(m), X(layout.getTotalLayers() - 1), Y(m));
+            g.drawLine(vMargin, Y(m), X(layout.getTotalLayers() - 1), Y(m));
         }
 
         int offset = 0;
-        for (Partition partition : layout.getPartitions()) {
+        for (Layout.Partition partition : layout.getPartitions()) {
             AffineTransform t = g.getTransform();
             try {
-                g.translate(0, offset * V_SPACE);
-                partition.visit(new DrawEdges(g));
-                partition.visit(new DrawVertex(g));
+                g.translate(0, offset * vSpace);
+                partition.visit(new EdgePlotter(g));
+                partition.visit(new VertexPlotter(g));
             }
             finally {
                 g.setTransform(t);
@@ -193,20 +207,20 @@ public class PlotPanel
         }
     }
 
-    private static void antiAliasGraphics(Graphics2D g) {
+    private int X(int col) {
+        return hMargin + col * hSpace;
+    }
+
+    private int Y(int row) {
+        return vMargin + row * vSpace;
+    }
+
+    public static void antiAliasGraphics(Graphics2D g) {
         // for antialiasing geometric shapes
         g.addRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON));
         // for antialiasing text
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
                 RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-    }
-
-    private static int X(int col) {
-        return H_MARGIN + col * H_SPACE;
-    }
-
-    private static int Y(int row) {
-        return V_MARGIN + row * V_SPACE;
     }
 }

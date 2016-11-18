@@ -7,16 +7,19 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import roadmap.graph.CommitList;
 import roadmap.graph.RefGraph;
-import roadmap.plot.PlotPanel;
+import roadmap.plot.GraphPanel;
 import roadmap.ref.Ref;
 import roadmap.ref.RefFilter;
 import roadmap.ref.RefSet;
 import roadmap.util.CliApp;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -43,6 +46,13 @@ public class Main
             usage = "Include remote branches"
     )
     private boolean remotes;
+    @Option(
+            name = "-o",
+            aliases = {"--output"},
+            usage = "Save image to PNG file",
+            metaVar = "OUTPUT"
+    )
+    private File out;
 
     @Override protected void describe(PrintWriter out)
             throws Exception {
@@ -77,22 +87,44 @@ public class Main
         commitList = new CommitList(objectReader, refSet);
         refGraph = commitList.getRefGraph();
 
-        plot();
+        GraphPanel panel = new GraphPanel(refGraph);
+        if (out != null) {
+            if (out.getName().endsWith(".png")) {
+                saveImage(panel, out);
+            }
+            else {
+                throw new IOException("Can only save PNG files");
+            }
+        }
+        else {
+            plot(panel);
+        }
     }
 
-    private void plot() {
+    private void plot(final GraphPanel panel) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override public void run() {
-                createAndShowGui();
+                showGui(panel);
             }
         });
     }
 
-    private void createAndShowGui() {
-        JFrame f = new JFrame("Ref Graph");
-        f.add(new JScrollPane(new PlotPanel(refGraph)));
-        f.pack();
-        f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        f.setVisible(true);
+    private static void showGui(JPanel panel) {
+        JFrame frame = new JFrame("Ref Graph");
+        frame.add(new JScrollPane(panel));
+        frame.pack();
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+
+    private static void saveImage(JPanel panel, File file)
+            throws IOException {
+        panel.setSize(panel.getPreferredSize());
+        BufferedImage image = new BufferedImage(
+                panel.getWidth(),
+                panel.getHeight(),
+                BufferedImage.TYPE_INT_ARGB);
+        panel.paint(image.getGraphics());
+        ImageIO.write(image, "png", file);
     }
 }
