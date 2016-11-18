@@ -80,7 +80,7 @@ public class Main
         CommitList commitList = new CommitList(objectReader, refSet);
         Graph graph = commitList.getGraph();
         Layout layout = new Layout(graph);
-        Plotter plotter = new Plotter(layout);
+        Plotter plotter = new Plotter.Builder().build(layout);
         if (out != null) {
             saveImage(plotter, out);
         }

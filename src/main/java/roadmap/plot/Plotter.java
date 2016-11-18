@@ -128,6 +128,51 @@ public class Plotter {
         }
     }
 
+    public static class Builder {
+        private double scale;
+        private int hMargin;
+        private int vMargin;
+        private int hSpace;
+        private int vSpace;
+
+        public Builder() {
+            scale = SCALE;
+            hMargin = H_MARGIN;
+            vMargin = V_MARGIN;
+            hSpace = H_SPACE;
+            vSpace = V_SPACE;
+        }
+
+        public Builder setScale(double scale) {
+            this.scale = scale;
+            return this;
+        }
+
+        public Builder setHMargin(int hMargin) {
+            this.hMargin = hMargin;
+            return this;
+        }
+
+        public Builder setVMargin(int vMargin) {
+            this.vMargin = vMargin;
+            return this;
+        }
+
+        public Builder setHSpace(int hSpace) {
+            this.hSpace = hSpace;
+            return this;
+        }
+
+        public Builder setVSpace(int vSpace) {
+            this.vSpace = vSpace;
+            return this;
+        }
+
+        public Plotter build(Layout layout) {
+            return new Plotter(layout, this);
+        }
+    }
+
     private static final double SCALE = 1.0;
     private static final int H_MARGIN = 120;
     private static final int V_MARGIN = 70;
@@ -151,13 +196,13 @@ public class Plotter {
     private final int height;
     private final Dimension size;
 
-    public Plotter(Layout layout) {
+    private Plotter(Layout layout, Builder builder) {
         this.layout = layout;
-        scale = SCALE;
-        hMargin = H_MARGIN;
-        vMargin = V_MARGIN;
-        hSpace = H_SPACE;
-        vSpace = V_SPACE;
+        scale = builder.scale;
+        hMargin = builder.hMargin;
+        vMargin = builder.vMargin;
+        hSpace = builder.hSpace;
+        vSpace = builder.vSpace;
         width = (int) Math.ceil(scale * (hMargin * 2 + (layout.getTotalLayers() - 1) * hSpace));
         height = (int) Math.ceil(scale * (vMargin * 2 + (layout.getTotalLanes() - 1) * vSpace));
         size = new Dimension(Math.max(width, 600), Math.max(height, 300));
