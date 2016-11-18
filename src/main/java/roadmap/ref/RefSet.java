@@ -21,7 +21,6 @@ import java.util.Set;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
@@ -39,7 +38,12 @@ public final class RefSet
         implements Iterable<Ref> {
     public static RefSet from(Repository db)
             throws IOException {
-        return build(new RevWalk(db), db.getAllRefs());
+        return from(db, RefFilter.ANY);
+    }
+
+    public static RefSet from(Repository db, RefFilter filter)
+            throws IOException {
+        return build(new RevWalk(db), db.getAllRefs(), filter);
     }
 
     public static final Ref EMPTY_MASTER = new Ref(R_HEADS + MASTER, ObjectId.zeroId());
@@ -68,19 +72,13 @@ public final class RefSet
 
             Set<Ref> set = byId.get(ref.getId());
             if (set == null) {
-                set = singleton(ref);
+                set = new HashSet<>();
             }
             else {
-                if (set.size() == 1) {
-                    set = new HashSet<>(set);
-                }
-                set.add(ref);
+                set = new HashSet<>(set);
             }
-            byId.put(ref.getId(), set);
-        }
-
-        for (Map.Entry<AnyObjectId, Set<Ref>> entry : byId.entrySet()) {
-            byId.put(entry.getKey(), unmodifiableSet(entry.getValue()));
+            set.add(ref);
+            byId.put(ref.getId(), unmodifiableSet(set));
         }
 
         this.byName = unmodifiableMap(byName);
@@ -186,14 +184,19 @@ public final class RefSet
         return 31 * byName.hashCode() + Objects.hashCode(defaultBranch);
     }
 
-    static RefSet build(RevWalk revWalk, Map<String, org.eclipse.jgit.lib.Ref> refs)
+    private static RefSet build(RevWalk revWalk,
+                                Map<String, org.eclipse.jgit.lib.Ref> refs,
+                                RefFilter filter)
             throws IOException {
         HashMap<String, Ref> map = new HashMap<>(refs.size());
-        Ref defaultBranch = init(revWalk, refs, map);
+        Ref defaultBranch = init(revWalk, refs, map, filter);
         return new RefSet(map.values(), defaultBranch);
     }
 
-    private static Ref init(RevWalk revWalk, Map<String, org.eclipse.jgit.lib.Ref> refs, Map<String, Ref> map)
+    private static Ref init(RevWalk revWalk,
+                            Map<String, org.eclipse.jgit.lib.Ref> refs,
+                            Map<String, Ref> map,
+                            RefFilter filter)
             throws IOException {
         for (org.eclipse.jgit.lib.Ref gitRef : refs.values()) {
             String name = gitRef.getName();
@@ -201,7 +204,7 @@ public final class RefSet
             if (Ref.isBranch(name) || Ref.isTag(name)) {
                 try {
                     Ref ref = makeRef(revWalk, name, id);
-                    if (ref != null) {
+                    if (ref != null && filter.accept(ref)) {
                         map.put(ref.getName(), ref);
                     }
                 }

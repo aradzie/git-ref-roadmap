@@ -8,6 +8,8 @@ import org.kohsuke.args4j.Option;
 import roadmap.graph.CommitList;
 import roadmap.graph.RefGraph;
 import roadmap.plot.PlotPanel;
+import roadmap.ref.Ref;
+import roadmap.ref.RefFilter;
 import roadmap.ref.RefSet;
 import roadmap.util.CliApp;
 
@@ -65,7 +67,13 @@ public class Main
 
     private void run()
             throws IOException {
-        refSet = RefSet.from(repository);
+        refSet = RefSet.from(repository, new RefFilter() {
+            @Override public boolean accept(Ref ref) {
+                return ref.isLocal()
+                        || remotes && ref.isRemote()
+                        || tags && ref.isTag();
+            }
+        });
         commitList = new CommitList(objectReader, refSet);
         refGraph = commitList.getRefGraph();
 
