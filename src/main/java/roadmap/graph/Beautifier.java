@@ -28,14 +28,14 @@ import java.util.Set;
  * here.</p>
  */
 final class Beautifier {
-    private static final Comparator<RefGraph.Node> COMPARATOR = new Comparator<RefGraph.Node>() {
-        @Override public int compare(RefGraph.Node o1, RefGraph.Node o2) {
+    private static final Comparator<Graph.Node> COMPARATOR = new Comparator<Graph.Node>() {
+        @Override public int compare(Graph.Node o1, Graph.Node o2) {
             return o2.index - o1.index;
         }
     };
-    private final RefGraph graph;
+    private final Graph graph;
 
-    Beautifier(RefGraph graph) {
+    Beautifier(Graph graph) {
         this.graph = graph;
     }
 
@@ -43,21 +43,21 @@ final class Beautifier {
     void beautify() {
         assert graph.isConsistent();
 
-        Set<RefGraph.Node> nodes = graph.getNodes();
+        Set<Graph.Node> nodes = graph.getNodes();
         HeadSet.Builder hsb = new HeadSet.Builder(nodes);
 
-        ArrayList<RefGraph.Node> list = new ArrayList<>(nodes.size());
+        ArrayList<Graph.Node> list = new ArrayList<>(nodes.size());
         TopologicalSortIterator it = new TopologicalSortIterator(graph);
         for (int n = 0; it.hasNext(); n++) {
-            RefGraph.Node node = it.next();
+            Graph.Node node = it.next();
             node.index = n;
             list.add(node);
         }
 
         // For each parent commit...
-        for (RefGraph.Node node : list) {
+        for (Graph.Node node : list) {
             // ...copy refs from its children.
-            Set<RefGraph.Node> children = node.getChildren();
+            Set<Graph.Node> children = node.getChildren();
             if (children.isEmpty()) {
                 // This is a root node, start new heads branch.
                 HeadSet heads = new HeadSet(hsb);
@@ -67,7 +67,7 @@ final class Beautifier {
             else if (children.size() == 1) {
                 // Borrow heads from the single child.
                 HeadSet heads = new HeadSet(hsb);
-                for (RefGraph.Node child : children) {
+                for (Graph.Node child : children) {
                     heads.addAll(child.<HeadSet>tag());
                 }
                 heads.add(hsb, node);
@@ -76,9 +76,9 @@ final class Beautifier {
             else {
                 // Combine heads from multiple children.
                 HeadSet heads = new HeadSet(hsb);
-                ArrayList<RefGraph.Node> l = new ArrayList<>(children);
+                ArrayList<Graph.Node> l = new ArrayList<>(children);
                 Collections.sort(l, COMPARATOR);
-                for (RefGraph.Node child : l) {
+                for (Graph.Node child : l) {
                     HeadSet childHeads = child.<HeadSet>tag();
                     if (HeadSet.isMergeBase(heads, childHeads)) {
                         heads.addAll(childHeads);
@@ -98,7 +98,7 @@ final class Beautifier {
         }
 
         // Do not leave garbage behind.
-        for (RefGraph.Node node : list) {
+        for (Graph.Node node : list) {
             node.tag(null);
         }
     }

@@ -6,19 +6,21 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import roadmap.graph.CommitList;
-import roadmap.graph.RefGraph;
-import roadmap.plot.GraphPanel;
+import roadmap.graph.Graph;
+import roadmap.plot.Layout;
+import roadmap.plot.Plotter;
 import roadmap.ref.Ref;
 import roadmap.ref.RefFilter;
 import roadmap.ref.RefSet;
+import roadmap.ui.GraphPanel;
 import roadmap.util.CliApp;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -33,9 +35,6 @@ public class Main
 
     private Repository repository;
     private ObjectReader objectReader;
-    private RefSet refSet;
-    private CommitList commitList;
-    private RefGraph refGraph;
     @Option(
             name = "--tags",
             usage = "Include tags"
@@ -77,54 +76,48 @@ public class Main
 
     private void run()
             throws IOException {
-        refSet = RefSet.from(repository, new RefFilter() {
+        RefSet refSet = RefSet.from(repository, getRefFilter());
+        CommitList commitList = new CommitList(objectReader, refSet);
+        Graph graph = commitList.getGraph();
+        Layout layout = new Layout(graph);
+        Plotter plotter = new Plotter(layout);
+        if (out != null) {
+            saveImage(plotter, out);
+        }
+        else {
+            showGui(new GraphPanel(plotter));
+        }
+    }
+
+    private RefFilter getRefFilter() {
+        return new RefFilter() {
             @Override public boolean accept(Ref ref) {
                 return ref.isLocal()
                         || remotes && ref.isRemote()
                         || tags && ref.isTag();
             }
-        });
-        commitList = new CommitList(objectReader, refSet);
-        refGraph = commitList.getRefGraph();
-
-        GraphPanel panel = new GraphPanel(refGraph);
-        if (out != null) {
-            if (out.getName().endsWith(".png")) {
-                saveImage(panel, out);
-            }
-            else {
-                throw new IOException("Can only save PNG files");
-            }
-        }
-        else {
-            plot(panel);
-        }
+        };
     }
 
-    private void plot(final GraphPanel panel) {
+    private static void saveImage(Plotter plotter, File file)
+            throws IOException {
+        BufferedImage image = new BufferedImage(
+                plotter.getWidth(),
+                plotter.getHeight(),
+                BufferedImage.TYPE_INT_ARGB);
+        plotter.draw((Graphics2D) image.getGraphics());
+        ImageIO.write(image, "png", file);
+    }
+
+    private static void showGui(final GraphPanel panel) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override public void run() {
-                showGui(panel);
+                JFrame frame = new JFrame("Ref Graph");
+                frame.add(new JScrollPane(panel));
+                frame.pack();
+                frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+                frame.setVisible(true);
             }
         });
-    }
-
-    private static void showGui(JPanel panel) {
-        JFrame frame = new JFrame("Ref Graph");
-        frame.add(new JScrollPane(panel));
-        frame.pack();
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setVisible(true);
-    }
-
-    private static void saveImage(JPanel panel, File file)
-            throws IOException {
-        panel.setSize(panel.getPreferredSize());
-        BufferedImage image = new BufferedImage(
-                panel.getWidth(),
-                panel.getHeight(),
-                BufferedImage.TYPE_INT_ARGB);
-        panel.paint(image.getGraphics());
-        ImageIO.write(image, "png", file);
     }
 }

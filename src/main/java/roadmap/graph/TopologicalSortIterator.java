@@ -7,30 +7,30 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 class TopologicalSortIterator
-        implements Iterator<RefGraph.Node> {
-    private final ArrayDeque<RefGraph.Node> queue = new ArrayDeque<>();
-    private RefGraph.Node next;
+        implements Iterator<Graph.Node> {
+    private final ArrayDeque<Graph.Node> queue = new ArrayDeque<>();
+    private Graph.Node next;
 
-    TopologicalSortIterator(RefGraph graph) {
+    TopologicalSortIterator(Graph graph) {
         queue.addAll(graph.getRoots());
-        for (RefGraph.Node node : graph) {
-            for (RefGraph.Node parent : node.getParents()) {
+        for (Graph.Node node : graph) {
+            for (Graph.Node parent : node.getParents()) {
                 parent.inDegree++;
             }
         }
         next = findNext();
     }
 
-    TopologicalSortIterator(RefGraph.Node root) {
+    TopologicalSortIterator(Graph.Node root) {
         this(Collections.singleton(root));
     }
 
-    TopologicalSortIterator(Set<? extends RefGraph.Node> roots) {
+    TopologicalSortIterator(Set<? extends Graph.Node> roots) {
         queue.addAll(roots);
         BreadthFirstIterator it = new BreadthFirstIterator(roots);
         while (it.hasNext()) {
-            RefGraph.Node node = it.next();
-            for (RefGraph.Node parent : node.getParents()) {
+            Graph.Node node = it.next();
+            for (Graph.Node parent : node.getParents()) {
                 parent.inDegree++;
             }
         }
@@ -41,8 +41,8 @@ class TopologicalSortIterator
         return next != null;
     }
 
-    @Override public RefGraph.Node next() {
-        RefGraph.Node n = next;
+    @Override public Graph.Node next() {
+        Graph.Node n = next;
         if (n == null) {
             throw new NoSuchElementException();
         }
@@ -50,10 +50,10 @@ class TopologicalSortIterator
         return n;
     }
 
-    private RefGraph.Node findNext() {
-        RefGraph.Node node = queue.poll();
+    private Graph.Node findNext() {
+        Graph.Node node = queue.poll();
         if (node != null) {
-            for (RefGraph.Node parent : node.getParents()) {
+            for (Graph.Node parent : node.getParents()) {
                 if (--parent.inDegree == 0) {
                     queue.add(parent);
                 }

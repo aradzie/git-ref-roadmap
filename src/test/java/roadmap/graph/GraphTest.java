@@ -7,6 +7,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Rule;
 import org.junit.Test;
+import roadmap.ref.RefDiff;
 import roadmap.ref.RefFilter;
 import roadmap.ref.RefSet;
 import roadmap.test.RepositorySetup;
@@ -23,7 +24,7 @@ import static org.eclipse.jgit.lib.Constants.R_TAGS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class RefGraphTest {
+public class GraphTest {
     @Rule public final RepositorySetupRule setup = new RepositorySetupRule();
 
     @Test public void emptyGraph()
@@ -36,7 +37,7 @@ public class RefGraphTest {
         Repository db = setup.setupBare(s);
 
         RefSet refs = RefSet.from(db);
-        RefGraph graph = graph(db.newObjectReader(), refs);
+        Graph graph = graph(db.newObjectReader(), refs);
         dump(graph);
         assertTrue(graph.getRoots().isEmpty());
         assertTrue(graph.getRefDiffs().isEmpty());
@@ -88,7 +89,7 @@ public class RefGraphTest {
         Repository db = setup.setupBare(s);
 
         RefSet refs = RefSet.from(db);
-        RefGraph graph = graph(db.newObjectReader(), refs);
+        Graph graph = graph(db.newObjectReader(), refs);
         dump(graph);
         assertSetsEquals(set(s.a, s.b, s.d), graph.getRoots());
         assertSetsEquals(set(s.a), mergeBases(graph, s.a, s.a));
@@ -150,7 +151,7 @@ public class RefGraphTest {
         Repository db = setup.setupBare(s);
 
         RefSet refs = RefSet.from(db);
-        RefGraph graph = graph(db.newObjectReader(), refs);
+        Graph graph = graph(db.newObjectReader(), refs);
         dump(graph);
         assertSetsEquals(set(s.a, s.b), graph.getRoots());
         assertEquals(2, graph.node(s.c).getParents().size());
@@ -197,7 +198,7 @@ public class RefGraphTest {
         Repository db = setup.setupBare(s);
 
         RefSet refs = RefSet.from(db);
-        RefGraph graph = graph(db.newObjectReader(), refs);
+        Graph graph = graph(db.newObjectReader(), refs);
         dump(graph);
         assertSetsEquals(set(s.a, s.b), graph.getRoots());
         assertEquals(1, graph.node(s.a).getParents().size());
@@ -250,7 +251,7 @@ public class RefGraphTest {
         Repository db = setup.setupBare(s);
 
         RefSet refs = RefSet.from(db);
-        RefGraph graph = graph(db.newObjectReader(), refs);
+        Graph graph = graph(db.newObjectReader(), refs);
         dump(graph);
         assertSetsEquals(set(s.a, s.b), graph.getRoots());
         assertEquals(1, graph.node(s.a).getParents().size());
@@ -305,7 +306,7 @@ public class RefGraphTest {
         Repository db = setup.setupBare(s);
 
         RefSet refs = RefSet.from(db);
-        RefGraph graph = graph(db.newObjectReader(), refs);
+        Graph graph = graph(db.newObjectReader(), refs);
         dump(graph);
         assertSetsEquals(set(s.a, s.b), graph.getRoots());
         assertEquals(1, graph.node(s.a).getParents().size());
@@ -355,7 +356,7 @@ public class RefGraphTest {
         Repository db = setup.setupBare(s);
 
         RefSet refs = RefSet.from(db);
-        RefGraph graph = graph(db.newObjectReader(), refs);
+        Graph graph = graph(db.newObjectReader(), refs);
         dump(graph);
         assertSetsEquals(set(s.a), graph.getRoots());
         assertEquals(0, graph.getRefDiffs().size());
@@ -391,7 +392,7 @@ public class RefGraphTest {
         Repository db = setup.setupBare(s);
 
         RefSet refs = RefSet.from(db);
-        RefGraph graph = graph(db.newObjectReader(), refs);
+        Graph graph = graph(db.newObjectReader(), refs);
         dump(graph);
         assertSetsEquals(set(s.a), graph.getRoots());
         assertEquals(1, graph.node(s.a).getParents().size());
@@ -444,7 +445,7 @@ public class RefGraphTest {
         Repository db = setup.setupBare(s);
 
         RefSet refs = RefSet.from(db);
-        RefGraph graph = graph(db.newObjectReader(), refs);
+        Graph graph = graph(db.newObjectReader(), refs);
         dump(graph);
         assertSetsEquals(set(s.a, s.b, s.c), graph.getRoots());
         assertSetsEquals(set(s.d), mergeBases(graph, s.a, s.b, s.c));
@@ -462,9 +463,9 @@ public class RefGraphTest {
         assertTrue(graph.getRefDiffs().contains(new RefDiff(s.d, s.b, 1, s.c, 1)));
     }
 
-    static RefGraph graph(ObjectReader reader, RefSet refs)
+    static Graph graph(ObjectReader reader, RefSet refs)
             throws IOException {
-        return new CommitList(reader, refs).getRefGraph().copy();
+        return new CommitList(reader, refs).getGraph().copy();
     }
 
     static Set<AnyObjectId> set(AnyObjectId... id) {
@@ -475,13 +476,13 @@ public class RefGraphTest {
         return s;
     }
 
-    static Set<RefGraph.Node> mergeBases(RefGraph g, AnyObjectId a, AnyObjectId... b) {
-        HashSet<RefGraph.Node> heads = new HashSet<>();
+    static Set<Graph.Node> mergeBases(Graph g, AnyObjectId a, AnyObjectId... b) {
+        HashSet<Graph.Node> heads = new HashSet<>();
         heads.add(g.node(a));
         for (AnyObjectId id : b) {
             heads.add(g.node(id));
         }
-        HashSet<RefGraph.Node> mb = new HashSet<>();
+        HashSet<Graph.Node> mb = new HashSet<>();
         g.findMergeBases(heads, mb);
         return mb;
     }
@@ -496,7 +497,7 @@ public class RefGraphTest {
         assertEquals(a, b);
     }
 
-    static void dump(RefGraph graph)
+    static void dump(Graph graph)
             throws IOException {
         PrintWriter w = new PrintWriter(System.out, true);
         graph.dump(w);

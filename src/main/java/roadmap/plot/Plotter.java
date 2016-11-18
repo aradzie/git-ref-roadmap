@@ -1,6 +1,5 @@
 package roadmap.plot;
 
-import roadmap.graph.Layout;
 import roadmap.ref.Ref;
 
 import java.awt.BasicStroke;
@@ -13,7 +12,7 @@ import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.util.Iterator;
 
-public class GraphPlotter {
+public class Plotter {
     /** Draws edges. */
     private class EdgePlotter
             implements Layout.VertexVisitor {
@@ -152,7 +151,7 @@ public class GraphPlotter {
     private final int height;
     private final Dimension size;
 
-    public GraphPlotter(Layout layout) {
+    public Plotter(Layout layout) {
         this.layout = layout;
         scale = SCALE;
         hMargin = H_MARGIN;

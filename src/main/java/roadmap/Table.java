@@ -4,8 +4,8 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import roadmap.graph.CommitDetails;
 import roadmap.graph.CommitList;
-import roadmap.graph.RefDiff;
-import roadmap.graph.RefGraph;
+import roadmap.ref.RefDiff;
+import roadmap.graph.Graph;
 import roadmap.ref.Ref;
 import roadmap.ref.RefSet;
 
@@ -107,11 +107,11 @@ public class Table {
     static List<Row> table(
             ObjectReader objectReader,
             RefSet refSet, CommitList commitList,
-            RefGraph refGraph)
+            Graph graph)
             throws IOException {
         ArrayList<Row> rows = new ArrayList<>();
         Ref master = refSet.defaultBranch();
-        for (RefDiff diff : refGraph.getRefDiffs()) {
+        for (RefDiff diff : graph.getRefDiffs()) {
             if (ObjectId.equals(master.getId(), diff.getB())) {
                 CommitDetails commit = commitList.loadDetails(objectReader, diff.getA());
                 Set<Ref> set = refSet.byId(diff.getA());

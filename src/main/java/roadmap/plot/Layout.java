@@ -1,6 +1,7 @@
-package roadmap.graph;
+package roadmap.plot;
 
 import org.eclipse.jgit.lib.ObjectId;
+import roadmap.graph.Graph;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -587,23 +588,23 @@ public class Layout {
                     return a.points.size() - b.points.size();
                 }
             };
-    private final RefGraph graph;
+    private final Graph graph;
     private final ArrayList<Partition> partitions = new ArrayList<>();
     private int totalLayers, totalLanes;
 
-    public Layout(RefGraph graph) {
+    public Layout(Graph graph) {
         this.graph = graph;
-        HashMap<RefGraph.Node, Node> mapping = new HashMap<>();
-        for (RefGraph.Node node : graph) {
+        HashMap<Graph.Node, Node> mapping = new HashMap<>();
+        for (Graph.Node node : graph) {
             mapping.put(node, new Node(node));
         }
-        for (RefGraph.Node node : graph) {
-            for (RefGraph.Node parent : node.getParents()) {
+        for (Graph.Node node : graph) {
+            for (Graph.Node parent : node.getParents()) {
                 mapping.get(node).outgoing.add(mapping.get(parent));
             }
         }
         HashSet<Vertex> roots = new HashSet<>();
-        for (RefGraph.Node node : graph.getRoots()) {
+        for (Graph.Node node : graph.getRoots()) {
             roots.add(mapping.get(node));
         }
         for (Vertex root : roots) {
@@ -652,7 +653,7 @@ public class Layout {
         partition.roots.add((Node) root);
     }
 
-    public RefGraph getGraph() {
+    public Graph getGraph() {
         return graph;
     }
 

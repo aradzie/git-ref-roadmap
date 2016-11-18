@@ -4,6 +4,7 @@ import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import roadmap.ref.Ref;
+import roadmap.ref.RefDiff;
 import roadmap.ref.RefFilter;
 import roadmap.ref.RefSet;
 
@@ -19,8 +20,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /** Ref ancestry graph it only includes ref nodes and merge base nodes. */
-public class RefGraph
-        implements Iterable<RefGraph.Node> {
+public class Graph
+        implements Iterable<Graph.Node> {
     /** Single node from ref graph. */
     public static class Node
             extends ObjectId {
@@ -154,21 +155,21 @@ public class RefGraph
     /** Ref set this graph was built for. */
     private final RefSet refs;
     /** All graph nodes. */
-    final RefNodeSet nodes;
+    final NodeSet nodes;
     /** Root nodes, i.e. nodes without children. */
-    final RefNodeSet roots;
+    final NodeSet roots;
     /** Set of differences between refs. */
     private final Set<RefDiff> refDiffs;
 
     /** Create empty graph. */
-    private RefGraph() {
-        this(RefSet.EMPTY, new RefNodeSet(), new HashSet<RefDiff>());
+    private Graph() {
+        this(RefSet.EMPTY, new NodeSet(), new HashSet<RefDiff>());
     }
 
-    RefGraph(RefSet refs, RefNodeSet roots, Set<RefDiff> refDiffs) {
+    Graph(RefSet refs, NodeSet roots, Set<RefDiff> refDiffs) {
         this.refs = refs;
         this.roots = roots;
-        nodes = RefNodeSet.fill(this.roots);
+        nodes = NodeSet.fill(this.roots);
         this.refDiffs = Collections.unmodifiableSet(refDiffs);
         fix();
     }
@@ -300,7 +301,7 @@ public class RefGraph
      *
      * @return Deep copy of this graph without tags.
      */
-    public RefGraph copy(RefFilter filter) {
+    public Graph copy(RefFilter filter) {
         return new Rewriter.Simplifier(this, filter).simplify();
     }
 
@@ -310,8 +311,8 @@ public class RefGraph
      *
      * @return Deep copy of this graph.
      */
-    public RefGraph copy() {
-        return new RefGraph(refs, copy(roots), refDiffs);
+    public Graph copy() {
+        return new Graph(refs, copy(roots), refDiffs);
     }
 
     void fix() {
@@ -344,9 +345,9 @@ public class RefGraph
         return true;
     }
 
-    private static RefNodeSet copy(Set<Node> roots) {
+    private static NodeSet copy(Set<Node> roots) {
         // Roots in new graph.
-        RefNodeSet newRoots = new RefNodeSet();
+        NodeSet newRoots = new NodeSet();
         // Mapping of nodes from old to new graph.
         HashMap<Node, Node> map = new HashMap<>();
         // Queue for graph traversal.

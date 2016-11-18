@@ -9,13 +9,13 @@ import java.util.Set;
 
 /** Rewrite graph by eliminating uninteresting nodes. */
 abstract class Rewriter {
-    protected final RefGraph graph;
+    protected final Graph graph;
 
-    Rewriter(RefGraph graph) {
+    Rewriter(Graph graph) {
         this.graph = graph;
     }
 
-    protected boolean interesting(RefGraph.Node node) {
+    protected boolean interesting(Graph.Node node) {
         return true;
     }
 
@@ -25,13 +25,13 @@ abstract class Rewriter {
      *
      * @return New root nodes of the rewritten graph.
      */
-    RefNodeSet rewrite() {
+    NodeSet rewrite() {
         // Interesting roots.
-        RefNodeSet in = new RefNodeSet();
+        NodeSet in = new NodeSet();
         // Uninteresting roots.
-        RefNodeSet un = new RefNodeSet();
+        NodeSet un = new NodeSet();
         // Split roots to interesting and uninteresting ones.
-        for (RefGraph.Node root : graph.getRoots()) {
+        for (Graph.Node root : graph.getRoots()) {
             if (interesting(root)) {
                 in.add(root);
             }
@@ -40,16 +40,16 @@ abstract class Rewriter {
             }
         }
         // Start traversal from interesting roots only.
-        ArrayDeque<RefGraph.Node> queue = new ArrayDeque<>(in);
-        RefNodeSet seen = new RefNodeSet(queue);
-        RefGraph.Node node;
+        ArrayDeque<Graph.Node> queue = new ArrayDeque<>(in);
+        NodeSet seen = new NodeSet(queue);
+        Graph.Node node;
         while ((node = queue.poll()) != null) {
             // New parents for this node.
-            RefNodeSet parents = new RefNodeSet();
+            NodeSet parents = new NodeSet();
             // Iterate over the existing parents.
-            Iterator<RefGraph.Node> it = node.getParents().iterator();
+            Iterator<Graph.Node> it = node.getParents().iterator();
             while (it.hasNext()) {
-                RefGraph.Node parent = it.next();
+                Graph.Node parent = it.next();
                 it.remove();
                 if (interesting(parent)) {
                     // Keep this parent.
@@ -60,10 +60,10 @@ abstract class Rewriter {
                 }
                 else {
                     // Find parent's interesting parents.
-                    RefNodeSet replaces = new RefNodeSet();
+                    NodeSet replaces = new NodeSet();
                     replace(parent, replaces);
                     parents.addAll(replaces);
-                    for (RefGraph.Node replace : replaces) {
+                    for (Graph.Node replace : replaces) {
                         if (seen.add(replace)) {
                             queue.add(replace);
                         }
@@ -71,15 +71,15 @@ abstract class Rewriter {
                 }
             }
             // Update parents out of iteration cycle to avoid concurrent modification.
-            for (RefGraph.Node parent : parents) {
+            for (Graph.Node parent : parents) {
                 node.link(parent);
             }
         }
         // Replace each uninteresting root with its interesting children.
-        for (RefGraph.Node root : un) {
-            RefNodeSet replaces = new RefNodeSet();
+        for (Graph.Node root : un) {
+            NodeSet replaces = new NodeSet();
             replace(root, replaces);
-            for (RefGraph.Node replace : replaces) {
+            for (Graph.Node replace : replaces) {
                 // Set interesting children as roots, but only if not seen previously,
                 // otherwise they are reachable from other interesting roots.
                 // By definition reachable nodes cannot be roots.
@@ -91,19 +91,19 @@ abstract class Rewriter {
         return in;
     }
 
-    private void replace(RefGraph.Node root, RefNodeSet replaces) {
+    private void replace(Graph.Node root, NodeSet replaces) {
         // Initiate search in the sub-graph starting from the
         // specified child. Stop search as soon as interesting
         // parents are found.
-        ArrayDeque<RefGraph.Node> queue = new ArrayDeque<>();
+        ArrayDeque<Graph.Node> queue = new ArrayDeque<>();
         queue.add(root);
-        RefNodeSet seen = new RefNodeSet(queue);
-        RefGraph.Node node;
+        NodeSet seen = new NodeSet(queue);
+        Graph.Node node;
         while ((node = queue.poll()) != null) {
             if (queue.isEmpty()) {
                 seen.clear();
             }
-            for (RefGraph.Node parent : node.getParents()) {
+            for (Graph.Node parent : node.getParents()) {
                 if (interesting(parent)) {
                     replaces.add(parent);
                 }
@@ -120,11 +120,11 @@ abstract class Rewriter {
     /** Remove nodes with tags only except those that are merge bases. */
     static final class Simplifier
             extends Rewriter {
-        private final RefNodeSet heads = new RefNodeSet();
-        private final RefNodeSet mergeBases = new RefNodeSet();
+        private final NodeSet heads = new NodeSet();
+        private final NodeSet mergeBases = new NodeSet();
         private final RefFilter filter;
 
-        Simplifier(RefGraph graph, RefFilter filter) {
+        Simplifier(Graph graph, RefFilter filter) {
             // The current implementation is not particularly efficient
             // as it makes two copies of the specified graph.
             // The first copy is needed to clone every node of the graph.
@@ -134,28 +134,28 @@ abstract class Rewriter {
             this.filter = filter;
         }
 
-        RefGraph simplify() {
-            RefNodeSet roots = rewrite();
-            RefGraph result = new RefGraph(graph.getRefs(), roots, graph.getRefDiffs());
+        Graph simplify() {
+            NodeSet roots = rewrite();
+            Graph result = new Graph(graph.getRefs(), roots, graph.getRefDiffs());
             result.fix();
             new Beautifier(result).beautify();
             return result;
         }
 
-        @Override protected boolean interesting(RefGraph.Node node) {
+        @Override protected boolean interesting(Graph.Node node) {
             // Filter out tags.
             return heads.contains(node) || mergeBases.contains(node);
         }
 
-        @Override RefNodeSet rewrite() {
+        @Override NodeSet rewrite() {
             findHeads(heads);
             graph.findMergeBases(heads, mergeBases);
             return super.rewrite();
         }
 
         /** Find those nodes that have branch refs pointing at them. */
-        private void findHeads(RefNodeSet heads) {
-            for (RefGraph.Node node : graph) {
+        private void findHeads(NodeSet heads) {
+            for (Graph.Node node : graph) {
                 if (acceptAny(graph.getRefs().byId(node))) {
                     heads.add(node);
                 }

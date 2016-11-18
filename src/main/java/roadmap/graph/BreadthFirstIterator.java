@@ -8,16 +8,16 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 class BreadthFirstIterator
-        implements Iterator<RefGraph.Node> {
-    private final HashSet<RefGraph.Node> seen = new HashSet<>();
-    private final ArrayDeque<RefGraph.Node> queue = new ArrayDeque<>();
-    private RefGraph.Node next;
+        implements Iterator<Graph.Node> {
+    private final HashSet<Graph.Node> seen = new HashSet<>();
+    private final ArrayDeque<Graph.Node> queue = new ArrayDeque<>();
+    private Graph.Node next;
 
-    BreadthFirstIterator(RefGraph.Node root) {
+    BreadthFirstIterator(Graph.Node root) {
         this(Collections.singleton(root));
     }
 
-    BreadthFirstIterator(Set<? extends RefGraph.Node> roots) {
+    BreadthFirstIterator(Set<? extends Graph.Node> roots) {
         seen.addAll(roots);
         queue.addAll(roots);
         next = findNext();
@@ -27,8 +27,8 @@ class BreadthFirstIterator
         return next != null;
     }
 
-    @Override public RefGraph.Node next() {
-        RefGraph.Node n = next;
+    @Override public Graph.Node next() {
+        Graph.Node n = next;
         if (n == null) {
             throw new NoSuchElementException();
         }
@@ -36,10 +36,10 @@ class BreadthFirstIterator
         return n;
     }
 
-    private RefGraph.Node findNext() {
-        RefGraph.Node node = queue.poll();
+    private Graph.Node findNext() {
+        Graph.Node node = queue.poll();
         if (node != null) {
-            for (RefGraph.Node parent : node.getParents()) {
+            for (Graph.Node parent : node.getParents()) {
                 if (seen.add(parent)) {
                     queue.add(parent);
                 }

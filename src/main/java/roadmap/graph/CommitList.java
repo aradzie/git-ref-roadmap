@@ -10,6 +10,7 @@ import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.util.RawParseUtils;
+import roadmap.ref.RefDiff;
 import roadmap.ref.RefSet;
 
 import java.io.IOException;
@@ -63,13 +64,13 @@ public class CommitList
             add(heads);
         }
 
-        RefGraph.Node makeNode() {
-            RefGraph.Node node = new RefGraph.Node(commit);
-            RefNodeSet children = new RefNodeSet();
+        Graph.Node makeNode() {
+            Graph.Node node = new Graph.Node(commit);
+            NodeSet children = new NodeSet();
             for (HeadSet heads : this) {
                 children.addAll(heads.getNodes());
             }
-            for (RefGraph.Node child : children) {
+            for (Graph.Node child : children) {
                 child.link(node);
             }
             commit.getHeads().setNodes(Collections.singleton(node));
@@ -77,7 +78,7 @@ public class CommitList
         }
 
         void mergeNodes() {
-            RefNodeSet nodes = new RefNodeSet();
+            NodeSet nodes = new NodeSet();
             for (HeadSet heads : this) {
                 nodes.addAll(heads.getNodes());
             }
@@ -435,7 +436,7 @@ public class CommitList
     private final Commit[][] hashTable;
     private final int size;
     private final HeadSet.Builder hsb;
-    private final RefGraph refGraph;
+    private final Graph graph;
 
     public CommitList(ObjectReader reader, RefSet r)
             throws IOException {
@@ -487,7 +488,7 @@ public class CommitList
         HashSet<ObjectId> mergeBases = new HashSet<>();
         RefDiffSink diffs = new RefDiffSink(refs);
         init(mergeBases, diffs);
-        refGraph = buildGraph(mergeBases, diffs);
+        graph = buildGraph(mergeBases, diffs);
     }
 
     private CommitList(RefSet refs, CommitListBuilder b) {
@@ -499,14 +500,14 @@ public class CommitList
         HashSet<ObjectId> mergeBases = new HashSet<>();
         RefDiffSink diffs = new RefDiffSink(refs);
         init(mergeBases, diffs);
-        refGraph = buildGraph(mergeBases, diffs);
+        graph = buildGraph(mergeBases, diffs);
     }
 
     /** @return Make ref graph from the current list of commits and refs. */
-    private RefGraph buildGraph(HashSet<ObjectId> mergeBases, Set<RefDiff> diffs) {
-        RefNodeSet roots = new RefNodeSet();
+    private Graph buildGraph(HashSet<ObjectId> mergeBases, Set<RefDiff> diffs) {
+        NodeSet roots = new NodeSet();
         buildGraph(mergeBases, roots);
-        RefGraph graph = new RefGraph(refs, roots, diffs);
+        Graph graph = new Graph(refs, roots, diffs);
         new Beautifier(graph).beautify();
         return graph;
     }
@@ -562,13 +563,13 @@ public class CommitList
         }
     }
 
-    private void buildGraph(Set<ObjectId> mergeBases, Set<RefGraph.Node> roots) {
+    private void buildGraph(Set<ObjectId> mergeBases, Set<Graph.Node> roots) {
         // For this algorithm to work the list has to be sorted
         // topologically.
         for (Commit commit : this) {
             HeadSetCollection hsc = new HeadSetCollection(commit);
             if (mergeBases.contains(commit)) {
-                RefGraph.Node node = hsc.makeNode();
+                Graph.Node node = hsc.makeNode();
                 if (hsc.isEmpty()) {
                     roots.add(node);
                 }
@@ -695,8 +696,8 @@ public class CommitList
     }
 
     /** @return Graph of refs. */
-    public RefGraph getRefGraph() {
-        return refGraph;
+    public Graph getGraph() {
+        return graph;
     }
 
     /**
@@ -813,7 +814,7 @@ public class CommitList
             throws IOException {
         w.printf("commits: %d\n", size());
         w.printf("refs: %d\n", refs.all().size());
-        refGraph.dump(w);
+        graph.dump(w);
         w.flush();
     }
 

@@ -3,6 +3,7 @@ package roadmap.graph;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ObjectId;
 import roadmap.ref.Ref;
+import roadmap.ref.RefDiff;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -279,13 +280,13 @@ final class HeadSet {
         }
     }
 
-    private Set<RefGraph.Node> nodes;
+    private Set<Graph.Node> nodes;
 
-    Set<RefGraph.Node> getNodes() {
+    Set<Graph.Node> getNodes() {
         return nodes;
     }
 
-    void setNodes(Set<RefGraph.Node> nodes) {
+    void setNodes(Set<Graph.Node> nodes) {
         this.nodes = nodes;
     }
 

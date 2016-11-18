@@ -10,12 +10,12 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /** Set of ref graph nodes which allows mapping of object ids to nodes. */
-class RefNodeSet
-        extends AbstractSet<RefGraph.Node>
-        implements Iterable<RefGraph.Node> {
-    private static final RefGraph.Node DELETED = new RefGraph.Node(ObjectId.zeroId());
+class NodeSet
+        extends AbstractSet<Graph.Node>
+        implements Iterable<Graph.Node> {
+    private static final Graph.Node DELETED = new Graph.Node(ObjectId.zeroId());
     private static final int INITIAL_CAPACITY = 32;
-    private RefGraph.Node[] data;
+    private Graph.Node[] data;
     private int size;
 
     /**
@@ -24,13 +24,13 @@ class RefNodeSet
      * @param roots Graph root nodes.
      * @return Set of all nodes reachable from the roots.
      */
-    static RefNodeSet fill(RefNodeSet roots) {
-        RefNodeSet nodes = new RefNodeSet();
-        ArrayDeque<RefGraph.Node> queue = new ArrayDeque<>(roots);
-        RefGraph.Node node;
+    static NodeSet fill(NodeSet roots) {
+        NodeSet nodes = new NodeSet();
+        ArrayDeque<Graph.Node> queue = new ArrayDeque<>(roots);
+        Graph.Node node;
         while ((node = queue.poll()) != null) {
             if (nodes.add(node)) {
-                for (RefGraph.Node parent : node.getParents()) {
+                for (Graph.Node parent : node.getParents()) {
                     queue.add(parent);
                 }
             }
@@ -38,11 +38,11 @@ class RefNodeSet
         return nodes;
     }
 
-    RefNodeSet() {
+    NodeSet() {
         clear();
     }
 
-    RefNodeSet(Collection<RefGraph.Node> collection) {
+    NodeSet(Collection<Graph.Node> collection) {
         this();
         addAll(collection);
     }
@@ -55,7 +55,7 @@ class RefNodeSet
         return size == 0;
     }
 
-    @Override public boolean add(RefGraph.Node node) {
+    @Override public boolean add(Graph.Node node) {
         int p = slot(data, node);
         while (data[p] != null && data[p] != DELETED) {
             if (AnyObjectId.equals(data[p], node)) {
@@ -111,11 +111,11 @@ class RefNodeSet
     }
 
     @Override public void clear() {
-        data = new RefGraph.Node[INITIAL_CAPACITY];
+        data = new Graph.Node[INITIAL_CAPACITY];
         size = 0;
     }
 
-    public RefGraph.Node get(AnyObjectId id) {
+    public Graph.Node get(AnyObjectId id) {
         int p = slot(data, id);
         while (data[p] != null) {
             if (AnyObjectId.equals(data[p], id)) {
@@ -143,8 +143,8 @@ class RefNodeSet
     }
 
     private void rehash(int size) {
-        RefGraph.Node[] data = new RefGraph.Node[size];
-        for (RefGraph.Node node : this.data) {
+        Graph.Node[] data = new Graph.Node[size];
+        for (Graph.Node node : this.data) {
             if (node != null && node != DELETED) {
                 int p = slot(data, node);
                 while (data[p] != null) {
@@ -167,18 +167,18 @@ class RefNodeSet
         return p;
     }
 
-    @Override public Iterator<RefGraph.Node> iterator() {
+    @Override public Iterator<Graph.Node> iterator() {
         return new IteratorImpl();
     }
 
     private final class IteratorImpl
-            implements Iterator<RefGraph.Node> {
-        RefGraph.Node[] data;
+            implements Iterator<Graph.Node> {
+        Graph.Node[] data;
         int index;
-        RefGraph.Node last;
+        Graph.Node last;
 
         IteratorImpl() {
-            data = RefNodeSet.this.data;
+            data = NodeSet.this.data;
             index = findNext(index);
         }
 
@@ -196,12 +196,12 @@ class RefNodeSet
             return index < data.length;
         }
 
-        @Override public RefGraph.Node next() {
+        @Override public Graph.Node next() {
             if (index < data.length) {
                 last = data[index];
                 index = findNext(index + 1);
                 if (index == data.length) {
-                    data = new RefGraph.Node[] {};
+                    data = new Graph.Node[] {};
                 }
                 return last;
             }
@@ -209,7 +209,7 @@ class RefNodeSet
         }
 
         @Override public void remove() {
-            RefNodeSet.this.remove((Object) last);
+            NodeSet.this.remove((Object) last);
         }
     }
 }

@@ -49,7 +49,7 @@ public class MergeBaseApp
             throws IOException {
         RefSet refs = RefSet.from(db);
         CommitList list = new CommitList(db.newObjectReader(), refs);
-        RefGraph graph = list.getRefGraph();
+        Graph graph = list.getGraph();
 
         for (Ref a : refs) {
             if (!a.isBranch()) {
@@ -59,7 +59,7 @@ public class MergeBaseApp
                 if (!b.isBranch()) {
                     continue;
                 }
-                TreeSet<RefGraph.Node> our = new TreeSet<>();
+                TreeSet<Graph.Node> our = new TreeSet<>();
                 graph.findMergeBases(
                         graph.node(a.getId()),
                         graph.node(b.getId()), our);
@@ -75,7 +75,7 @@ public class MergeBaseApp
                 if (!Objects.equals(our, git)) {
                     System.out.println("does not match: " + a.getName() + "/" + b.getName());
                     System.out.println("our:");
-                    for (RefGraph.Node node : our) {
+                    for (Graph.Node node : our) {
                         System.out.println("\t" + node.getName());
                     }
                     System.out.println("git:");

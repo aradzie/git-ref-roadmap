@@ -1,7 +1,6 @@
-package roadmap.plot;
+package roadmap.ui;
 
-import roadmap.graph.Layout;
-import roadmap.graph.RefGraph;
+import roadmap.plot.Plotter;
 
 import javax.swing.JPanel;
 import java.awt.Color;
@@ -12,14 +11,14 @@ import java.awt.Graphics2D;
 /** Swing component to draw graph of commits. */
 public class GraphPanel
         extends JPanel {
-    private final GraphPlotter graphPlotter;
+    private final Plotter plotter;
 
-    public GraphPanel(RefGraph graph) {
-        graphPlotter = new GraphPlotter(new Layout(graph));
+    public GraphPanel(Plotter plotter) {
+        this.plotter = plotter;
     }
 
     @Override public Dimension getPreferredSize() {
-        return graphPlotter.getSize();
+        return plotter.getSize();
     }
 
     @Override public void paintComponent(Graphics g) {
@@ -30,6 +29,6 @@ public class GraphPanel
         g.setColor(Color.WHITE);
         g.fillRect(0, 0, getWidth(), getHeight());
 
-        graphPlotter.draw(g);
+        plotter.draw(g);
     }
 }
