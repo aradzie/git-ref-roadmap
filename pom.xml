@@ -95,7 +95,7 @@
                     <archive>
                         <addMavenDescriptor>false</addMavenDescriptor>
                         <manifest>
-                            <mainClass>roadmap.RoadMap</mainClass>
+                            <mainClass>roadmap.Main</mainClass>
                             <addClasspath>true</addClasspath>
                             <classpathLayoutType>custom</classpathLayoutType>
                             <customClasspathLayout>

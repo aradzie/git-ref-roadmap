@@ -2,39 +2,29 @@ package roadmap;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
-import org.kohsuke.args4j.Argument;
-import org.kohsuke.args4j.CmdLineParser;
-import org.kohsuke.args4j.Option;
 import roadmap.graph.CommitDetails;
 import roadmap.graph.CommitList;
 import roadmap.graph.RefDiff;
 import roadmap.graph.RefGraph;
-import roadmap.plot.PlotPanel;
 import roadmap.ref.Ref;
 import roadmap.ref.RefSet;
-import roadmap.util.CliApp;
 
-import javax.swing.*;
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import static java.text.DateFormat.SHORT;
 import static java.text.DateFormat.getDateTimeInstance;
 
-public class RoadMap
-        extends CliApp {
-    private static class Row {
+public class Table {
+    static class Row {
         static final Comparator<Row> COMPARATOR = new Comparator<Row>() {
             @Override public int compare(Row o1, Row o2) {
-                return reverse(sort(o1, o2));
+                return -(sort(o1, o2));
             }
 
             int sort(Row o1, Row o2) {
@@ -56,18 +46,22 @@ public class RoadMap
             }
         };
         static final DateFormat FORMAT = getDateTimeInstance(SHORT, SHORT);
+        /** Ref on the left side. */
         final Ref a;
+        /** Number of commits since merge base on the left side. */
         final int na;
+        /** Ref on the right side. */
         final Ref b;
+        /** Number of commits since merge base on the right side. */
         final int nb;
         final CommitDetails commit;
 
         Row(Ref a, int na, Ref b, int nb, CommitDetails commit) {
-            this.a = a;
-            this.b = b;
+            this.a = Objects.requireNonNull(a);
+            this.b = Objects.requireNonNull(b);
             this.na = na;
             this.nb = nb;
-            this.commit = commit;
+            this.commit = Objects.requireNonNull(commit);
         }
 
         @Override public String toString() {
@@ -110,81 +104,14 @@ public class RoadMap
         }
     }
 
-    public static void main(String[] args)
-            throws Exception {
-        exec(args, new RoadMap());
-    }
-
-    private Repository repository;
-    private ObjectReader objectReader;
-    private RefSet refSet;
-    private CommitList commitList;
-    private RefGraph refGraph;
-    @Option(
-            name = "--tags",
-            usage = "Include tags"
-    )
-    private boolean tags;
-    @Option(
-            name = "--remotes",
-            usage = "Include remote branches"
-    )
-    private boolean remotes;
-    @Argument(
-            index = 0,
-            metaVar = "DIR",
-            usage = "Git repository dir"
-    )
-    private File dir;
-
-    @Override protected void describe(PrintWriter out)
-            throws Exception {
-        out.println("Display ref roadmap graph for a Git repository.");
-    }
-
-    @Override protected void run(CmdLineParser parser)
-            throws Exception {
-        if (dir == null) {
-            dir = new File(".").getAbsoluteFile();
-        }
-
-        try (Repository repository = new FileRepositoryBuilder()
-                .setWorkTree(dir.getCanonicalFile())
-                .setMustExist(true)
-                .build()) {
-            try (ObjectReader objectReader = repository.newObjectReader()) {
-                this.repository = repository;
-                this.objectReader = objectReader;
-                run();
-            }
-        }
-    }
-
-    private void run()
-            throws IOException {
-        refSet = RefSet.from(repository);
-        commitList = new CommitList(objectReader, refSet);
-        refGraph = commitList.getRefGraph();
-
-        List<Row> rows = table(refGraph.getRefDiffs());
-
-        StringBuilder s = new StringBuilder();
-        for (Row row : rows) {
-            row.formatDiff(s);
-            s.append("\n\t");
-            row.formatCommit(s);
-            s.append("\n");
-        }
-        System.out.print(s);
-
-        plot();
-    }
-
-    private List<Row> table(Set<RefDiff> diffs)
+    static List<Row> table(
+            ObjectReader objectReader,
+            RefSet refSet, CommitList commitList,
+            RefGraph refGraph)
             throws IOException {
         ArrayList<Row> rows = new ArrayList<>();
         Ref master = refSet.defaultBranch();
-        for (RefDiff diff : diffs) {
+        for (RefDiff diff : refGraph.getRefDiffs()) {
             if (ObjectId.equals(master.getId(), diff.getB())) {
                 CommitDetails commit = commitList.loadDetails(objectReader, diff.getA());
                 Set<Ref> set = refSet.byId(diff.getA());
@@ -197,20 +124,15 @@ public class RoadMap
         return rows;
     }
 
-    private void plot() {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override public void run() {
-                createAndShowGui();
-            }
-        });
-    }
-
-    private void createAndShowGui() {
-        JFrame f = new JFrame("Ref Graph");
-        f.add(new JScrollPane(new PlotPanel(refGraph)));
-        f.pack();
-        f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        f.setVisible(true);
+    static void print(List<Row> rows) {
+        StringBuilder s = new StringBuilder();
+        for (Row row : rows) {
+            row.formatDiff(s);
+            s.append("\n\t");
+            row.formatCommit(s);
+            s.append("\n");
+        }
+        System.out.print(s);
     }
 
     static void alignLeft(StringBuilder s, String v, int w) {
@@ -250,15 +172,5 @@ public class RoadMap
             s.append("...");
             s.append(v.substring(l - w + 3));
         }
-    }
-
-    static int reverse(int s) {
-        if (s > 0) {
-            return -1;
-        }
-        if (s < 0) {
-            return 1;
-        }
-        return 0;
     }
 }
