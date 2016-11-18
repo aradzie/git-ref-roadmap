@@ -23,7 +23,7 @@ public class CommitDiff {
     }
 
     /**
-     * Find out the difference in commits between two root commits, that is, find
+     * Find the difference in commits between two root commits, that is, find
      * commits added and removed.
      *
      * <p>Let two sets, set {@code x} of all commits reachable from the root {@code a},

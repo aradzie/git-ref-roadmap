@@ -85,7 +85,7 @@ public class Main
             saveImage(plotter, out);
         }
         else {
-            showGui(new GraphPanel(plotter));
+            showGui(plotter);
         }
     }
 
@@ -109,11 +109,11 @@ public class Main
         ImageIO.write(image, "png", file);
     }
 
-    private static void showGui(final GraphPanel panel) {
+    private static void showGui(final Plotter plotter) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override public void run() {
                 JFrame frame = new JFrame("Ref Graph");
-                frame.add(new JScrollPane(panel));
+                frame.add(new JScrollPane(new GraphPanel(plotter)));
                 frame.pack();
                 frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
                 frame.setVisible(true);
