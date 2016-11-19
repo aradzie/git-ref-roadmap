@@ -23,81 +23,81 @@ public class Layout {
         void visit(Node node);
     }
 
-    /** Graph edge crossing reduction facility. */
-    private class LayerStack {
-        /** Specialized array list to hold vertexes from a single layer. */
-        class Layer
-                extends ArrayList<Vertex> {
-            /** Initial arrangement of vertexes on a layer. */
-            void init() {
-                Collections.sort(this, VERTEX_BY_WEIGHT_REVERSE);
-                updateIndexes();
-            }
+    /** Specialized array list to hold vertexes from a single layer. */
+    class Layer
+            extends ArrayList<Vertex> {
+        /** Initial arrangement of vertexes on a layer. */
+        void init() {
+            Collections.sort(this, VERTEX_BY_WEIGHT_REVERSE);
+            updateIndexes();
+        }
 
-            /** Rearrange vertexes after crossing reduction step. */
-            void rearrange() {
-                Collections.sort(this, VERTEX_BY_LANE);
-                updateIndexes();
-            }
+        /** Rearrange vertexes after crossing reduction step. */
+        void rearrange() {
+            Collections.sort(this, VERTEX_BY_LANE);
+            updateIndexes();
+        }
 
-            /** Update vertex indexes after proper sorting is applied to them. */
-            void updateIndexes() {
-                int index = 0;
-                for (Vertex vertex : this) {
-                    vertex.lane = index++;
+        /** Update vertex indexes after proper sorting is applied to them. */
+        void updateIndexes() {
+            int index = 0;
+            for (Vertex vertex : this) {
+                vertex.lane = index++;
+            }
+        }
+
+        /** Beautify graph by placing root nodes on top, if possible. */
+        void rootsOnTop() {
+            // In each vertex sort outgoing edges for faster comparison.
+            for (Vertex vertex : this) {
+                Collections.sort(vertex.outgoing, VERTEX_BY_LANE);
+            }
+            // Run insertion sort to rearrange vertexes.
+            for (int n = 1; n < size(); n++) {
+                Vertex v1 = get(n);
+                if (!v1.incoming.isEmpty()) {
+                    int m = n;
+                    for (; m > 0; m--) {
+                        Vertex v2 = get(m - 1);
+                        Vertex v3 = get(m);
+                        if (v2.incoming.isEmpty()
+                                && v2.outgoing.equals(v3.outgoing)) {
+                            set(m, v2);
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                    set(m, v1);
                 }
             }
+            updateIndexes();
+        }
 
-            /** Beautify graph by placing root nodes on top, if possible. */
-            void rootsOnTop() {
-                // In each vertex sort outgoing edges for faster comparison.
-                for (Vertex vertex : this) {
-                    Collections.sort(vertex.outgoing, VERTEX_BY_LANE);
-                }
-                // Run insertion sort to rearrange vertexes.
-                for (int n = 1; n < size(); n++) {
-                    Vertex v1 = get(n);
-                    if (!v1.incoming.isEmpty()) {
-                        int m = n;
-                        for (; m > 0; m--) {
-                            Vertex v2 = get(m - 1);
-                            Vertex v3 = get(m);
-                            if (v2.incoming.isEmpty()
-                                    && v2.outgoing.equals(v3.outgoing)) {
-                                set(m, v2);
-                            }
-                            else {
+        /** Beautify graph by placing each node not lower than its sole parent. */
+        void straightLines() {
+            for (int m = 0; m < size(); m++) {
+                Vertex vertex = get(m);
+                if (vertex.outgoing.size() == 1) {
+                    Vertex neighbor = vertex.outgoing.get(0);
+                    if (vertex.lane < neighbor.lane) {
+                        vertex.lane += neighbor.lane - vertex.lane;
+                        for (int n = m + 1; n < size(); n++) {
+                            Vertex v1 = get(n - 1);
+                            Vertex v2 = get(n);
+                            if (v1.lane < v2.lane) {
                                 break;
                             }
-                        }
-                        set(m, v1);
-                    }
-                }
-                updateIndexes();
-            }
-
-            /** Beautify graph by placing each node not lower than its sole parent. */
-            void straightLines() {
-                for (int m = 0; m < size(); m++) {
-                    Vertex vertex = get(m);
-                    if (vertex.outgoing.size() == 1) {
-                        Vertex neighbor = vertex.outgoing.get(0);
-                        if (vertex.lane < neighbor.lane) {
-                            vertex.lane += neighbor.lane - vertex.lane;
-                            for (int n = m + 1; n < size(); n++) {
-                                Vertex v1 = get(n - 1);
-                                Vertex v2 = get(n);
-                                if (v1.lane < v2.lane) {
-                                    break;
-                                }
-                                v2.lane = v1.lane + 1;
-                            }
+                            v2.lane = v1.lane + 1;
                         }
                     }
                 }
             }
         }
+    }
 
+    /** Graph edge crossing reduction facility. */
+    private class LayerStack {
         // TODO calculate sweeps from the number of nodes in the graph?
         static final int MAX_SWEEPS = 15;
         final Layer[] layers;

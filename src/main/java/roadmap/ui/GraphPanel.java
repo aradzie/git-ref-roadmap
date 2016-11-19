@@ -18,7 +18,9 @@ public class GraphPanel
     }
 
     @Override public Dimension getPreferredSize() {
-        return plotter.getSize();
+        int minWidth = Math.max(plotter.getMinWidth(), 600);
+        int minHeight = Math.max(plotter.getMinHeight(), 300);
+        return new Dimension(minWidth, minHeight);
     }
 
     @Override public void paintComponent(Graphics g) {
@@ -26,9 +28,12 @@ public class GraphPanel
     }
 
     private void draw(Graphics2D g) {
-        g.setColor(Color.WHITE);
-        g.fillRect(0, 0, getWidth(), getHeight());
+        int width = getWidth();
+        int height = getHeight();
 
-        plotter.draw(g);
+        g.setColor(Color.WHITE);
+        g.fillRect(0, 0, width, height);
+
+        plotter.draw(g, width, height);
     }
 }

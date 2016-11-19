@@ -33,8 +33,6 @@ public class Main
         exec(args, new Main());
     }
 
-    private Repository repository;
-    private ObjectReader objectReader;
     @Option(
             name = "--tags",
             usage = "Include tags"
@@ -67,20 +65,18 @@ public class Main
                 .setMustExist(true)
                 .build()) {
             try (ObjectReader objectReader = repository.newObjectReader()) {
-                this.repository = repository;
-                this.objectReader = objectReader;
-                run();
+                run(repository, objectReader);
             }
         }
     }
 
-    private void run()
+    private void run(Repository repository, ObjectReader objectReader)
             throws IOException {
         RefSet refSet = RefSet.from(repository, getRefFilter());
         CommitList commitList = new CommitList(objectReader, refSet);
         Graph graph = commitList.getGraph();
         Layout layout = new Layout(graph);
-        Plotter plotter = new Plotter.Builder().build(layout);
+        Plotter plotter = new Plotter(layout);
         if (out != null) {
             saveImage(plotter, out);
         }
@@ -101,11 +97,10 @@ public class Main
 
     private static void saveImage(Plotter plotter, File file)
             throws IOException {
-        BufferedImage image = new BufferedImage(
-                plotter.getWidth(),
-                plotter.getHeight(),
-                BufferedImage.TYPE_INT_ARGB);
-        plotter.draw((Graphics2D) image.getGraphics());
+        int width = plotter.getMinWidth();
+        int height = plotter.getMinHeight();
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        plotter.draw((Graphics2D) image.getGraphics(), width, height);
         ImageIO.write(image, "png", file);
     }
 
