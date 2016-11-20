@@ -10,6 +10,7 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.GeneralPath;
 import java.util.ArrayList;
 
 public class Plotter {
@@ -77,7 +78,7 @@ public class Plotter {
         return Y(vMargin + row * vSpace);
     }
 
-    public void draw(final Graphics2D g, int width, int height) {
+    public void draw(Graphics2D g, int width, int height) {
         double minWidth = getMinWidth();
         double minHeight = getMinHeight();
         hScale = Math.max(width, minWidth) / minWidth;
@@ -92,23 +93,16 @@ public class Plotter {
             AffineTransform t = g.getTransform();
             try {
                 g.translate(X(0), Y(offset * vSpace));
-                partition.visit(new Layout.VertexVisitor() {
-                    @Override public void visit(Layout.Bend bend) {
-                        drawEdge(g, bend);
-                    }
-
-                    @Override public void visit(Layout.Node node) {
-                        drawEdge(g, node);
-                    }
-                });
-                partition.visit(new Layout.VertexVisitor() {
-                    @Override public void visit(Layout.Bend bend) {}
-
-                    @Override public void visit(Layout.Node node) {
+                for (Layout.Vertex vertex : partition.getPoints()) {
+                    drawEdge(g, vertex);
+                }
+                for (Layout.Vertex vertex : partition.getPoints()) {
+                    if (vertex instanceof Layout.Node) {
+                        Layout.Node node = (Layout.Node) vertex;
                         drawVertex(g, node);
                         drawLabels(g, node);
                     }
-                });
+                }
             }
             finally {
                 g.setTransform(t);
@@ -134,7 +128,20 @@ public class Plotter {
         g.setColor(EDGE_COLOR);
         g.setStroke(EDGE_STROKE);
         for (Layout.Vertex outgoing : vertex.getOutgoing()) {
-            g.drawLine(x, y, colX(outgoing.col()), rowY(outgoing.row()));
+            int tx = colX(outgoing.col());
+            int ty = rowY(outgoing.row());
+            if (vertex.row() == outgoing.row()) {
+                g.drawLine(x, y, tx, ty);
+            }
+            else {
+                GeneralPath path = new GeneralPath();
+                path.moveTo(x, y);
+                path.curveTo(
+                        tx + 50, y,
+                        x - 50, ty,
+                        tx, ty);
+                g.draw(path);
+            }
         }
     }
 
